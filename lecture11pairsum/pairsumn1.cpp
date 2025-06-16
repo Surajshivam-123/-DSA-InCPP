@@ -2,6 +2,7 @@
 #include<vector>
 using namespace std;
 int main(){
+    //sorted array
     vector<int>god={2,3,5,7,8};
     int st=0,end=(god.size()-1);
     int target=9;

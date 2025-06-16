@@ -1,38 +1,26 @@
 #include<iostream>
 #include<vector>
 using namespace std;
-void sorting(vector<int>& nums){
-    int st=0,end=nums.size()-1;
-
-    while(st<=end){
-        if(nums[st]>nums[end]){
-            swap(nums[st],nums[end]);
-
-        }
-        st++;end--;
-    }
-    }
-
 int majorityElement(vector<int>& nums) {
-    sorting(nums);
+    sort(nums.begin(),nums.end());
     int n=nums.size();
-    int a=nums[0],c;
-    for(int i=0;i<n;i++){
-        if(a==nums[i]){
+    int c=1,ans=nums[0];
+    for(int i=1;i<n;i++){
+        if(ans==nums[i]){
             c++;
-        }
-        if(c>n/2){
-            return a;
         }
         else{
             c=1;
-            a=nums[i];
+            ans=nums[i];
+        }
+        if(c>n/2){
+            return a;
         }
     }
 
 }
 int main(){
-vector<int>suraj={1,2,2,1,1};
+vector<int>suraj={1,2,2,1,1};//1 1 2 2 1
 cout<<majorityElement(suraj);
 
 }

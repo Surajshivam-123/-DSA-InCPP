@@ -104,7 +104,7 @@ public:
     void printll(){//O(n)
         Node* temp=head;
         while(temp!=NULL){
-            cout<<temp->data<<" ";
+            cout<<temp->data<<"=>";
             temp=temp->nextptr;
         }
         delete temp;
@@ -149,9 +149,9 @@ bool cycle1(Node *head) {//TC->O(n)//SC->O(n)
 bool cycle(Node* head){
     Node* slow=head;
     Node* fast=head;
-    while(fast!=NULL && fast->netptr!=NULL){
-        slow=slow->netptr;
-        fast=fast->netptr->nextptr;
+    while(fast!=NULL && fast->nextptr!=NULL){
+        slow=slow->nextptr;
+        fast=fast->nextptr->nextptr;
         if(slow==fast){
             return true;
         }

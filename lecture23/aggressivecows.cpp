@@ -1,22 +1,14 @@
 #include<iostream>
 #include<vector>
 using namespace std;
-vector<int> sort(vector<int>&sur){
-    int t;
-    for(int i=0;i<sur.size();i++){
-        int minn=INT16_MAX;
-        for(int j=i;j<sur.size();j++){
-            if(sur[j]<minn){
-                minn=sur[j];
-                t=sur[i];
-                sur[i]=minn;
-                sur[j]=t;
-            }
-                    }
-        
-    }
-    return sur;
-}
+
+/*
+Problem Statement: You are given an array 'arr' of size 'n' which denotes the position of stalls.
+You are also given an integer 'k' which denotes the number of aggressive cows.
+You are given the task of assigning stalls to 'k' cows such that the minimum distance between any two of them is the maximum possible.
+Find the maximum possible minimum distance.
+*/
+
 bool ispossible(vector<int>arr,int mid,int n){
                 int c=1;
                 int laststall=arr[0];
@@ -26,20 +18,20 @@ bool ispossible(vector<int>arr,int mid,int n){
                         laststall=arr[i];
                     }
                     if(c==n){
-                     return true;
+                        return true;
                     }  
                 }
-                     return false;
+                return false;
    
 }
 
-int aggressivecows(vector<int>sur,int n){
-    sort(sur);
-    int st=sur[1]-sur[0],end=sur[sur.size()-1]-sur[0];
+int aggressivecows(vector<int>arr,int n){
+    sort(arr.begin(),arr.end());
+    int st=arr[1]-arr[0],end=arr[arr.size()-1]-arr[0];
     int ans=-1;
     while(st<=end){
         int mid=st+(end-st)/2;
-        if(ispossible(sur,mid,n)){
+        if(ispossible(arr,mid,n)){
             ans=mid;
             st=mid+1;
         }

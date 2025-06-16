@@ -1,4 +1,4 @@
-Teacher(){
-    //     dept="computer science";//default properites whenever constructor is called given value is set to object
-    //     cout<<"hi i m constructor"<<endl;
-    // }
+void display(){
+                cout<<"2 Dispalying Base class variable var_base "<<var_base<<endl;
+                cout<<"2 Dispalying Derived class variable var_derived "<<var_derived<<endl;
+            }

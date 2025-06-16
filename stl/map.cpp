@@ -11,7 +11,7 @@ int main(){
     mp.emplace("Shivam",300);//Not added//Two same key value pair does not exist
     mp.erase("Shivam");
     //To find value of particular key
-    map<string,int>::iterator it=mp.find("Suraj");
+    map<string,int>::iterator it=mp.find("Suraj");//TC->O(logn)
     if(it!=mp.end()){
         cout<<it->first<<endl;//if no key found nothing will print
         cout<<it->second<<endl;
