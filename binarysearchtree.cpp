@@ -141,7 +141,7 @@ int minDiffInBST(Node* root) {
         ans = min(ans,leftMin);
     }
     if(prev!=nullptr){
-        ans=min(ans,root->val-prev->val);
+        ans=min(ans,root->data-prev->data);
     }
     prev=root;
     if(root->right!=nullptr){
@@ -150,6 +150,27 @@ int minDiffInBST(Node* root) {
     }
     return ans;
 }
+
+int order=0;
+int kthSmallest(Node* root, int k) {
+    if(root==nullptr)return -1;
+    int lt=kthSmallest(root->left,k);
+    if(lt==-1){
+        order++; 
+    }
+    else return lt;
+    if(order==k)return root->data;
+    else return kthSmallest(root->right,k);
+}
+
+Node* lowestCommonAncestor(Node* root, Node* p, Node* q) {
+        if(root->data > p->data && root->data>q->data)
+            return lowestCommonAncestor(root->left,p,q);
+        if(root->data < p->data && root->data < q->data)
+            return lowestCommonAncestor(root->right,p,q);
+        else return root;
+    }
+
 
 int main(){
     Node *rootl=nullptr,*rootr=nullptr;
