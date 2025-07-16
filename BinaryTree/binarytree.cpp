@@ -292,22 +292,22 @@ void MorrisInorderTraversal(Node* root){
     Node* curr=root;
     while(curr!=nullptr){
         if(curr->left==nullptr){
-            cout<<cuurr->data<<" ";
-            curr=curr>right;
+            cout<<curr->data<<" ";
+            curr=curr->right;
         }
         else{
             Node* ip=curr->left;
-            while(ip->right!=nullptr && ip->right!=curr)ip=ip->right;
-            if(ip>right==nullptr){
+            while(ip->right!=nullptr && ip->right!=curr)
+                ip=ip->right;
+            if(ip->right==nullptr){
                 ip->right=curr;//thread created 
+                curr=curr->left;
         }
             else{
                 ip->right=nullptr;//thread removed
                 cout<<curr->data<<" ";
                 curr=curr->right;
             }
-                cout<<curr->data<<" ";
-                curr=curr->right;
             }
         }
     }

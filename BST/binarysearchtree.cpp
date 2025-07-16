@@ -102,6 +102,7 @@ void inorder(Node* root){
     inorder(root->right);
 }
 
+
 //build balanced binary search tree from sorted array
 Node *buildBalancedTree(vector<int>nums,int st,int end){
         if(st>end)
@@ -170,7 +171,136 @@ Node* lowestCommonAncestor(Node* root, Node* p, Node* q) {
             return lowestCommonAncestor(root->right,p,q);
         else return root;
     }
+// Construct Binary Search Tree from Preorder Traversal
+//Brute force
+void addNode(Node*& root,int val){
+        Node* newNode=new Node(val);
+        if(root==nullptr){
+            root=newNode;
+            return;
+            }
+        if(root->left==nullptr && root->right==nullptr){
+            if(root->data>val)
+                root->left=newNode;
+            else
+                root->right=newNode;
+            return;
+        }
+        if(root->data>val)
+            addNode(root->left,val);
+        else
+            addNode(root->right,val);
+    }
+Node* bstFromPreorder(vector<int>& preorder) {//O(n**2)
+    Node* root=nullptr;
+    for(int v:preorder){
+        addNode(root,v);
+    }
+    return root;
+}
 
+//optimal approach
+TreeNode* buildTree(int& i,int bound,vector<int>& preorder){
+        if(i>=preorder.size() || preorder[i]>=bound)
+            return nullptr;
+        TreeNode* root=new TreeNode(preorder[i]);
+        i++;
+        root->left=buildTree(i,root->val,preorder);
+        root->right=buildTree(i,bound,preorder);
+        return root;
+    }
+TreeNode* bstFromPreorder(vector<int>& preorder) {//O(n)
+    int i=0;
+    return buildTree(i,INT16_MAX,preorder);
+}
+
+//merge two binary tree
+void inorderArr(Node* root,vector<int>&arr){
+    if(root==nullptr)return;
+    inorderArr(root->left,arr);
+    arr.push_back(root->val);
+    inorderArr(root->right,arr);
+}
+
+Node* merge2bst(Node* root1,Node* root2){
+    vector<int>arr1;
+    vector<int>arr2;
+    inorderArr(root1,arr1);
+    inorderArr(root2,arr2);
+    vector<int>merge;
+    int i=0,j=0;
+    while(i!=arr1.size() && j!=arr2.size()){//O(m+n)
+        if(arr1[i]<arr[j]){
+            merge.push_back(arr1[i]);
+            i++;
+        }
+        else{
+            merge.push_back(arr2[j]);
+            j++;
+        }
+    }
+    while(i!=arr1.size()){
+        merge.push_back(arr1[i]);
+        i++;
+    }
+    while(j!=arr2.size()){
+        merge.push_back(arr2[j]);
+        j++;
+    }
+    //making of balanced bst using binary search
+    return buildBalancedTree(merge,0,merge.size()-1);
+}
+//Recover Tree
+//You are given the root of a binary search tree (BST), where the values of exactly two nodes of the tree were swapped by mistake. Recover the tree without changing its structure.
+Node* prev=nullptr;
+Node* first=nullptr;
+Node* sec=nullptr;
+void inorderRT(Node* root){
+    if(root==nullptr)
+        return;
+    inorderRT(root->left);
+    if(prev!=nullptr && root->data<prev->data){
+        if(first==nullptr)
+            first=prev;
+        sec=root;
+    }
+    prev=root;
+    inorderRT(root->right);
+}
+void recoverTree(Node* root){//TC->O(n)
+    inorderRT(root);
+    int t=first->data;
+    first->data=sec->data;
+    sec->data=t;
+}
+
+//largest bst
+class info{
+    public:
+    int size;
+    int max;
+    int min;
+    info(){}
+    info(size,max,min){
+        this.size=size;
+        this.max=max;
+        this.min=min;
+    }
+}
+info largestBST(Node* root){//size=0
+    if(root==nullptr)
+        return info(0,INT16_MIN,INT16_MAX);
+    info left=largestBST(root->left);
+    info right=largestBST(root->right);
+    if(root->data>left.max && root->data<right.min){
+        info curr;
+        curr.size=left.size+right.size+1;
+        curr.min=min(root,left.min);
+        curr.max=max(root,right.max);
+        return curr;
+    }
+    return info(max(left.size,right.size),INT16_MAX,INT16_MIN);
+}
 
 int main(){
     Node *rootl=nullptr,*rootr=nullptr;
