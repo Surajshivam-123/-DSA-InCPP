@@ -1,5 +1,6 @@
 #include<iostream>
 #include<vector>
+#include<stack>
 using namespace std;
 //Binary Search tree:-left child is always smaller or equal to parent and right child is always greater than parent
 class Node{
@@ -122,7 +123,7 @@ Node* sortedArrayToBST(vector<int>& nums) {
 bool isBST(Node* root,Node* min,Node* max){
         if(root==NULL)
             return true;
-        if((min!=NULL && root->val<=min->val) || (max!=NULL && root->val>=max->val))
+        if((min!=NULL && root->data<=min->data) || (max!=NULL && root->data>=max->data))
             return false;
         return isBST(root->left,min,root) && isBST(root->right,root,max);
     }
@@ -133,24 +134,24 @@ bool isValidBST(Node* root) {
 
 
 //Given the root of a Binary Search Tree (BST), return the minimum difference between the values of any two different nodes in the tree.
-Node* prev=nullptr;
+// Node* prev=nullptr;
 
-int minDiffInBST(Node* root) {
-    int ans=INT_MAX;
-    if(root->left!=nullptr){
-        int leftMin = minDiffInBST(root->left);
-        ans = min(ans,leftMin);
-    }
-    if(prev!=nullptr){
-        ans=min(ans,root->data-prev->data);
-    }
-    prev=root;
-    if(root->right!=nullptr){
-        int rightMin=minDiffInBST(root->right);
-        ans = min(ans,rightMin);
-    }
-    return ans;
-}
+// int minDiffInBST(Node* root) {
+//     int ans=INT16_MAX;
+//     if(root->left!=nullptr){
+//         int leftMin = minDiffInBST(root->left);
+//         ans = min(ans,leftMin);
+//     }
+//     if(prev!=nullptr){
+//         ans=min(ans,root->data-prev->data);
+//     }
+//     prev=root;
+//     if(root->right!=nullptr){
+//         int rightMin=minDiffInBST(root->right);
+//         ans = min(ans,rightMin);
+//     }
+//     return ans;
+// }
 
 int order=0;
 int kthSmallest(Node* root, int k) {
@@ -191,25 +192,25 @@ void addNode(Node*& root,int val){
         else
             addNode(root->right,val);
     }
-Node* bstFromPreorder(vector<int>& preorder) {//O(n**2)
-    Node* root=nullptr;
-    for(int v:preorder){
-        addNode(root,v);
-    }
-    return root;
-}
+// Node* bstFromPreorder(vector<int>& preorder) {//O(n**2)
+//     Node* root=nullptr;
+//     for(int v:preorder){
+//         addNode(root,v);
+//     }
+//     return root;
+// }
 
 //optimal approach
-TreeNode* buildTree(int& i,int bound,vector<int>& preorder){
+Node* buildTree(int& i,int bound,vector<int>& preorder){
         if(i>=preorder.size() || preorder[i]>=bound)
             return nullptr;
-        TreeNode* root=new TreeNode(preorder[i]);
+        Node* root=new Node(preorder[i]);
         i++;
-        root->left=buildTree(i,root->val,preorder);
+        root->left=buildTree(i,root->data,preorder);
         root->right=buildTree(i,bound,preorder);
         return root;
     }
-TreeNode* bstFromPreorder(vector<int>& preorder) {//O(n)
+Node* bstFromPreorder(vector<int>& preorder) {//O(n)
     int i=0;
     return buildTree(i,INT16_MAX,preorder);
 }
@@ -218,7 +219,7 @@ TreeNode* bstFromPreorder(vector<int>& preorder) {//O(n)
 void inorderArr(Node* root,vector<int>&arr){
     if(root==nullptr)return;
     inorderArr(root->left,arr);
-    arr.push_back(root->val);
+    arr.push_back(root->data);
     inorderArr(root->right,arr);
 }
 
@@ -230,7 +231,7 @@ Node* merge2bst(Node* root1,Node* root2){
     vector<int>merge;
     int i=0,j=0;
     while(i!=arr1.size() && j!=arr2.size()){//O(m+n)
-        if(arr1[i]<arr[j]){
+        if(arr1[i]<arr2[j]){
             merge.push_back(arr1[i]);
             i++;
         }
@@ -252,27 +253,27 @@ Node* merge2bst(Node* root1,Node* root2){
 }
 //Recover Tree
 //You are given the root of a binary search tree (BST), where the values of exactly two nodes of the tree were swapped by mistake. Recover the tree without changing its structure.
-Node* prev=nullptr;
-Node* first=nullptr;
-Node* sec=nullptr;
-void inorderRT(Node* root){
-    if(root==nullptr)
-        return;
-    inorderRT(root->left);
-    if(prev!=nullptr && root->data<prev->data){
-        if(first==nullptr)
-            first=prev;
-        sec=root;
-    }
-    prev=root;
-    inorderRT(root->right);
-}
-void recoverTree(Node* root){//TC->O(n)
-    inorderRT(root);
-    int t=first->data;
-    first->data=sec->data;
-    sec->data=t;
-}
+// Node* prev=nullptr;
+// Node* first=nullptr;
+// Node* sec=nullptr;
+// void inorderRT(Node* root){
+//     if(root==nullptr)
+//         return;
+//     inorderRT(root->left);
+//     if(prev!=nullptr && root->data<prev->data){
+//         if(first==nullptr)
+//             first=prev;
+//         sec=root;
+//     }
+//     prev=root;
+//     inorderRT(root->right);
+// }
+// void recoverTree(Node* root){//TC->O(n)
+//     inorderRT(root);
+//     int t=first->data;
+//     first->data=sec->data;
+//     sec->data=t;
+// }
 
 //largest bst
 class info{
@@ -281,12 +282,12 @@ class info{
     int max;
     int min;
     info(){}
-    info(size,max,min){
-        this.size=size;
-        this.max=max;
-        this.min=min;
+    info(int size,int max,int min){
+        this->size=size;
+        this->max=max;
+        this->min=min;
     }
-}
+};
 info largestBST(Node* root){//size=0
     if(root==nullptr)
         return info(0,INT16_MIN,INT16_MAX);
@@ -295,17 +296,74 @@ info largestBST(Node* root){//size=0
     if(root->data>left.max && root->data<right.min){
         info curr;
         curr.size=left.size+right.size+1;
-        curr.min=min(root,left.min);
-        curr.max=max(root,right.max);
+        curr.min=min(root->data,left.min);
+        curr.max=max(root->data,right.max);
         return curr;
     }
     return info(max(left.size,right.size),INT16_MAX,INT16_MIN);
+}
+class BSTIterator {
+public:
+    stack<Node*>s;
+    Node* root;
+    BSTIterator(Node* root) {
+        this->root=root;
+        storeAllLeftNodes(root);
+    }
+    void storeAllLeftNodes(Node* troot){
+        while(troot!=nullptr){
+            s.push(troot);
+            troot=troot->left;
+        }
+    }
+    int next() {
+        Node* ans=s.top();
+        s.pop();
+        if(ans->right!=nullptr){
+            storeAllLeftNodes(ans->right);
+        }
+        return ans->data;
+    }
+    
+    bool hasNext() {
+        return !s.empty();
+    }
+};
+vector<int>ans(2);
+int rightmost(Node* root){
+    Node* temp=root;
+    while(temp->right!=nullptr){
+        temp=temp->right;
+    }
+    return temp->data;
+}
+int leftmost(Node* root){
+    Node* temp=root;
+    while(temp->left!=nullptr){
+        temp=temp->left;
+    }
+    return temp->data;
+}
+vector<int> getPredSucc(Node* root,int key){//TC-O(height) and SC->O(height)
+    //index-0 predecessor and index-1 successor
+    if(key<root->data){
+        ans[1]=root->data;
+        if(root->left!=nullptr)getPredSucc(root->left,key);
+    }
+    else if(key>root->data){
+        ans[0]=root->data;
+        if(root->right!=nullptr)getPredSucc(root->right,key);
+    }
+    else{
+        if(root->left!=nullptr)ans[0]=rightmost(root->left);
+        if(root->right!=nullptr)ans[1]=leftmost(root->right);
+    }
+    return ans;
 }
 
 int main(){
     Node *rootl=nullptr,*rootr=nullptr;
     vector<int>arr={5,1,7,4,8,3};
-
     for(int v:arr){
         rootl=insertl(rootl,v);
         rootr=insert(rootr,v);
@@ -322,4 +380,15 @@ int main(){
     rootr=deleteNode(rootr,7);
     inorder(rootr);
     cout<<endl;
+
+    Node* root=new Node(6);
+    root->left=new Node(4);
+    root->right=new Node(8);
+    root->left->left=new Node(1);
+    root->left->right=new Node(5);
+    root->right->left=new Node(7);
+    root->right->right=new Node(9);
+    int key =7;
+    vector<int>ans=getPredSucc(root,key);
+    cout<<ans[0]<<" "<<ans[1]<<endl;
 }
