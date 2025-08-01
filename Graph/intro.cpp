@@ -156,6 +156,75 @@ void dfs_of_graph_recursion(vector<int> adj[],int node,vector<bool>&visited){//S
     }
 }
 
+// DETECT A CYCLE IN UNDIRECTED GRAPH USING BFS
+bool isCylcle(int n,vector<int>adj[]){
+    vector<bool>visited(n,false);
+    queue<pair<int,int>>q;
+        for(int i=0;i<visited.size();i++){
+                if(!visited[i]){
+                    q.push({i,-1});
+                    visited[i]=true;
+                    while(!q.empty()){
+                        int node=q.front().first;
+                        int parent=q.front().second;
+                        q.pop();
+                        for(auto it:adj[node]){
+                            if(it!=parent){
+                                if(visited[it]){
+                                    return true;
+                                }
+                                q.push({it,node});
+                                visited[it]=true;
+                            }
+                        }
+                    }
+                }
+            }
+        while(!q.empty()){
+            int node=q.front().first;
+            int parent=q.front().second;
+            q.pop();
+            for(auto it:adj[node]){
+                if(it!=parent){
+                    if(visited[it]){
+                        return true;
+                    }
+                    q.push({it,node});
+                    visited[it]=true;
+                }
+            }
+        }
+    return false;
+}
+
+// DETECT A CYCLE IN UNDIRECTED GRAPH USING DFS
+bool dfs(vector<bool>&visited,vector<int>adj[],int node,int parent){//SC-O(n) TC-O(N+2E)
+    visited[node]=true;
+    for(auto adjacentNode:adj[node]){
+        if(!visited[adjacentNode]){
+            if(dfs(visited,adj,adjacentNode,node)){
+                return true;
+            }
+        }
+        else if(adjacentNode!=parent){
+            return true;
+        }
+    }
+    return false;
+}
+bool isCycleDetected(int n,vector<int>adj[]){
+    vector<bool>visited(n,false);
+    for(int i=0;i<n,i++){
+        if(!visited[i]){
+            if(dfs(visited,adj,i,-1)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
 // Find number of different components from the adjacent matrix
 bool allVisited(vector<bool>visited){
         return accumulate(visited.begin(),visited.end(),0)==visited.size();
@@ -247,43 +316,198 @@ int numIslands(vector<vector<char>>& grid) {//SC-O(N*N) and TC-O(N*N)
 // Here we have to traverse simultaneously or level wise so we will use BFS
 
 int orangesRotting(vector<vector<int>>& grid) {
-        int n=grid.size();
-        int m=grid[0].size();
-        queue<pair<int,int>>q;
-        for(int i=0;i<n;i++){
-            for(int j=0;j<m;j++){
-                if(grid[i][j]==2){
-                    q.push({i,j});
-                }
+    int n=grid.size();
+    int m=grid[0].size();
+    queue<pair<int,int>>q;
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+            if(grid[i][j]==2){
+                q.push({i,j});
             }
         }
-        if(!q.empty()){
+    }
+    if(!q.empty()){
+        q.push({-1,-1});
+    }
+    int t=0;
+    while(!q.empty()){
+        pair<int,int>curPair=q.front();
+        q.pop();
+        if(curPair.first==-1 && curPair.second==-1 && !q.empty()){
+            t++;
             q.push({-1,-1});
+            continue;
         }
-        int t=0;
-        while(!q.empty()){
-            pair<int,int>curPair=q.front();
-            q.pop();
-            if(curPair.first==-1 && curPair.second==-1 && !q.empty()){
-                t++;
-                q.push({-1,-1});
-                continue;
+        vector<int>delrow={-1,0,1,0};
+        vector<int>delcol={0,1,0,-1};
+        for(int i=0;i<4;i++){
+            int newRow=curPair.first+delrow[i];
+            int newCol=curPair.second+delcol[i];
+            if(newRow<n && newRow>=0 && newCol<m && newCol>=0 && grid[newRow][newCol]==1){
+                grid[newRow][newCol]=2;
+                q.push({newRow,newCol});
             }
-            vector<int>delrow={-1,0,1,0};
-            vector<int>delcol={0,1,0,-1};
-            for(int i=0;i<4;i++){
-                int newRow=curPair.first+delrow[i];
-                int newCol=curPair.second+delcol[i];
-                if(newRow<n && newRow>=0 && newCol<m && newCol>=0 && grid[newRow][newCol]==1){
-                    grid[newRow][newCol]=2;
+        }
+    }
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+            if(grid[i][j]==1)return -1;
+        }
+    }
+    return t;
+    }
+
+// Distance of nearest cell having 1;
+// Example [[1,0,1], Output [[0,1,0],
+//          [1,1,0],         [0,0,1],
+//          [1,0,0]]         [0,1,2]]
+
+vector<vector<int>> Distance_of_nearest_cell_having_1(vector<vector<int>>& grid) {//SC-O(n*m) TC-O(n*m)
+    int n=grid.size();
+    int m=grid[0].size();
+    queue<pair<pair<int,int>,int>>q;
+    vector<vector<int>>visited(n,vector<int>(m,0));
+    vector<vector<int>>dist(n,vector<int>(m,0));
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+            if(grid[i][j]==1){
+                q.push({{i,j},0});
+                visited[i][j]=1;
+            }
+        }
+        }
+    while(!q.empty()){
+        pair<pair<int,int>,int>curPair=q.front();
+        q.pop();
+        int row=curPair.first.first;
+        int col=curPair.first.second;
+        int curDist=curPair.second;
+        dist[row][col]=curDist;
+        int delrow[]={-1,0,1,0};
+        int delcol[]={0,1,0,-1};
+        for(int i=0;i<4;i++){
+            int newRow=row+delRow[i];
+            int newCol=col+delCol[i];
+            if(newRow>=0 && newRow<m && newCol>=0 && newCol<n && !visited[newRow][newCol]){
+                    q.push({{newRow,newCol},curDist+1});
+                    visited[newRow][newCol]=1;
+            }
+        }
+    }
+    return dist;
+}
+
+// SURROUNDING REGIONS
+// replace all 'O' with 'X' which is completely surrounded by 'X'
+// Input: board = [["X","X","X","X"]
+//                 ["X","O","O","X"]
+//                 ["X","X","O","X"]
+//                 ["X","O","X","X"]]
+// Output: [["X","X","X","X"]
+//          ["X","X","X","X"] 
+//          ["X","X","X","X"]
+//          ["X","O","X","X"]]
+
+void srdfs(vector<vector<char>>& board, vector < vector<int>>& visited,
+             int row, int col) {
+        int n = board.size();
+        int m = board[0].size();
+        visited[row][col] = 1;
+        int delRow[] = {-1, 0, 1, 0};
+        int delCol[] = {0, 1, 0, -1};
+        for (int i = 0; i < 4; i++) {
+            int newRow = row + delRow[i];
+            int newCol = col + delCol[i];
+            if (newRow >= 0 && newRow < n && newCol >= 0 && newCol < m &&
+                !visited[newRow][newCol] && board[newRow][newCol]=='O') {
+                srdfs(board,visited,newRow,newCol);
+            }
+        }
+    }
+void solve(vector<vector<char>>& board) {//TC-O(n*m) SC-O(n*m)
+    int n = board.size();
+    int m = board[0].size();
+    vector < vector<int>> visited(n,vector<int>(m, 0));
+    for (int i = 0; i < m; i++) {
+        if (board[0][i] == 'O' && !visited[0][i]) {
+            srdfs(board, visited, 0, i);
+        }
+            if (board[n-1][i] == 'O' && !visited[n-1][i]) {
+            srdfs(board, visited, n-1, i);
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        if (board[i][0] == 'O' && !visited[i][0]) {
+            srdfs(board, visited, i,0);
+        }
+        if (board[i][m-1] == 'O' && !visited[i][m-1]) {
+            srdfs(board, visited, i,m-1);
+        }
+    }
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+            if(board[i][j]=='O' && !visited[i][j]){
+                board[i][j]='X';
+            }
+        }
+    }
+}
+
+// SIMILAR PROBLEM AS ABOVE 
+// Input: grid = [[0,0,0,0],
+//                [0,0,1,0],
+//                [0,1,1,0],
+//                [0,0,0,0]]
+// Output: 3
+// Explanation: There are three 1s that are enclosed by 0s, and one 1 that is not enclosed because its on the boundary.
+int numEnclaves(vector<vector<int>>& grid) {
+        int n = grid.size();
+        int m = grid[0].size();
+        vector<vector<int>> visited(n, vector<int>(m, 0));
+        queue<pair<int, int>> q;
+        for (int i = 0; i < m; i++) {
+            if (grid[0][i] == 1 && !visited[0][i]) {
+                q.push({0, i});
+                visited[0][i]=1;
+            }
+            if (grid[n - 1][i] == 1 && !visited[n - 1][i]) {
+                q.push({n - 1, i});
+                visited[n - 1][i]=1;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if (grid[i][0] == 1 && !visited[i][0]) {
+                q.push({i, 0});
+                visited[i][0]=1;
+            }
+            if (grid[i][m - 1] == 1 && !visited[i][m - 1]) {
+                q.push({i, m - 1});
+                visited[i][m - 1]=1;
+            }
+        }
+        while (!q.empty()) {
+            int row = q.front().first;
+            int col = q.front().second;
+            q.pop();
+            int delRow[] = {-1, 0, 1, 0};
+            int delCol[] = {0, 1, 0, -1};
+            for (int i = 0; i < 4; i++) {
+                int newRow = row + delRow[i];
+                int newCol = col + delCol[i];
+                if (newRow >= 0 && newRow < n && newCol >= 0 && newCol < m &&
+                    !visited[newRow][newCol] && grid[newRow][newCol] == 1) {
+                    visited[newRow][newCol]=1;
                     q.push({newRow,newCol});
                 }
             }
         }
-        for(int i=0;i<n;i++){
-            for(int j=0;j<m;j++){
-                if(grid[i][j]==1)return -1;
+        int ans = 0;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (grid[i][j] == 1 && !visited[i][j]) {
+                    ans++;
+                }
             }
         }
-        return t;
+        return ans;
     }
