@@ -511,3 +511,187 @@ int numEnclaves(vector<vector<int>>& grid) {
         }
         return ans;
     }
+
+    // User function Template for C++
+
+// Number of distinct islands
+void dfs(int row,int col,vector<vector<int>>&visited,vector<vector<int>>& grid,vector<pair<int,int>>&vec,int brow,int bcol){
+    int n=grid.size();
+    int m=grid[0].size();
+    visited[row][col]=1;
+    vec.push_back({row-brow,col-bcol});
+    int delRow[]={-1,0,1,0};
+    int delCol[]={0,-1,0,1};
+    for(int i=0;i<4;i++){
+        int newRow=row+delRow[i];
+        int newCol=col+delCol[i];
+        if(newRow>=0 && newRow<n && newCol>=0 && newCol<m && !visited[newRow][newCol] && grid[newRow][newCol]){
+            visited[newRow][newCol]=1;
+            dfs(newRow,newCol,visited,grid,vec,brow,bcol);
+        }
+    }
+}
+int countDistinctIslands(vector<vector<int>>& grid) {//SC-O(n*m) TC-O(NxMx4 +NxMxlog(MxN))
+    int n=grid.size();
+    int m=grid[0].size();
+    vector<vector<int>>visited(n,vector<int>(m,0));
+    set<vector<pair<int,int>>>s;
+    for(int i=0;i<n;i++){
+        for(int j=0;j<m;j++){
+            if(!visited[i][j] && grid[i][j]==1){
+                vector<pair<int,int>>vec;
+                dfs(i,j,visited,grid,vec,i,j);
+                s.insert(vec);
+            }
+        }
+    }
+    return s.size();
+}
+
+
+//Graph with 2 color such that adjacent colors are different is called as bipartite graph
+// EXAMPLE
+//          y-g-y-g-y
+    //    /          \
+// y-g-y-g            g-y-g-y-g
+//        \          /
+//         y-g-y-g-y
+
+// Linear graph with no cycle or even cycle length is always bipartite graph
+// Graph with odd length cycle is non-bipartite graph
+
+// using bfs
+bool check_bfs(vector<vector<int>>& graph, vector<int>& color, int start) {
+int n = graph.size();
+queue<int> q;
+color[start] = false;
+q.push(start);
+while (!q.empty()) {
+    int curr = q.front();
+    q.pop();
+    for (int v : graph[curr]) {
+        if (color[v] == -1) {
+            q.push(v);
+            color[v] = !color[curr];
+        } else if (color[curr] == color[v])
+            return false;
+    }
+    if (q.empty()) {
+        for (int i = 0; i < n; i++) {
+            if (color[i] == -1) {
+                q.push(i);
+                color[i] = false;
+                break;
+            }
+        }
+    }
+}
+return true;
+}
+
+bool isBipartite_bfs(vector<vector<int>>& graph) { // SC-O(N)  TC-O(N+2E)
+    int n = graph.size();
+    vector<int> color(n, -1);
+    for (int i = 0; i < n; i++) {
+        if (color[i] == -1) {
+            if (!check_bfs(graph, color, i))
+                return false;
+        }
+    }
+    return true;
+}
+
+// using dfs
+bool check_dfs(vector<vector<int>>& graph, vector<int>& color, int start){
+    for(int v:graph[start]){
+        if(color[v]==-1){
+            color[v]=!color[start];
+            if(!check_dfs(graph,color,v))
+                return false;
+        }
+        else if(color[v]==color[start])
+            return false;
+    }
+    return true;
+}
+bool isBipartite_dfs(vector<vector<int>>& graph){
+    int n = graph.size();
+    vector<int> color(n, -1);
+    for(int i=0;i<n;i++){
+        if(color[i]==-1){
+            color[i]=true;
+            if(!check_dfs(graph,color,i))
+                return false;
+    }
+}
+    return true;
+}
+
+// DETECT CYCLE IN UNDIRECTED GRAPH
+// usinf dfs
+bool detect_cycle(vector<vector<int>>adj,vector<int>&visited,int node,vector<int>path_visited){
+    visited[node]=1;
+    path_visited[node]=1;
+    for(auto it:adj[node]){
+        if(!visited[it]){
+            if(detect_cycle(adj,visited,it,path_visited))return true;
+        }
+        else if(path_visited[it]){
+            return true;
+        }
+    }
+    return false;
+}
+bool check_cycle_in_undirected_graph(vector<vector<int>>adj){
+    int n=adj.size();
+    vector<int>visited(n,0);
+    for(int i=0;i<n;i++){
+        if(!visited[i]){
+            vector<int>path_visited(n,0);
+            if(detect_cycle(adj,visited,i,path_visited))return true;
+        }
+    }
+    return false;
+}
+
+// There is a directed graph of n nodes with each node labeled from 0 to n - 1. The graph is represented by a 0-indexed 2D integer array graph where graph[i] is an integer array of nodes adjacent to node i, meaning there is an edge from node i to each node in graph[i].
+
+// A node is a terminal node if there are no outgoing edges. A node is a safe node if every possible path starting from that node leads to a terminal node (or another safe node).
+
+// Return an array containing all the safe nodes of the graph. The answer should be sorted in ascending order.
+bool check(vector<vector<int>>& graph, vector<int>& visited,
+               vector<int>& path_visited, vector<int>& safeNode, int node) {
+        visited[node] = 1;
+        path_visited[node] = 1;
+        safeNode[node] = 0;
+        for (int v : graph[node]) {
+            if (!visited[v]) {
+                if (check(graph, visited, path_visited, safeNode, v)) {
+                    return true;
+                }
+            } else if (path_visited[v]) {
+                return true;
+            }
+        }
+        safeNode[node] = 1;
+        path_visited[node] = 0;
+        return false;
+    }
+vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
+    int n = graph.size();
+    vector<int> visited(n, 0);
+    vector<int> path_visited(n, 0);
+    vector<int> safeNode(n, 0);
+    vector<int> ans;
+    for (int i = 0; i < n; i++) {
+        if (!visited[i]) {
+            check(graph, visited, path_visited, safeNode, i);
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        if (safeNode[i]) {
+            ans.push_back(i);
+        }
+    }
+    return ans;
+}
