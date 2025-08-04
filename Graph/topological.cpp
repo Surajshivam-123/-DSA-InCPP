@@ -126,3 +126,124 @@ bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
         }
         return cnt==numCourses;
     }
+
+// return all nodes which is not part of any cycle
+
+vector<int>  findsafeNodes(vector<int>adj[],int n){
+    vector<int>indegree(n,0);
+    queue<int>q;
+    vector<int>adjRev;
+    //reverse all edges
+    for(int i=0;i<n;i++){
+        for(int v:adj[i]){
+            adjRev[v].push_back(i);
+        }
+    }
+    calculate_indegree(adjRev,indegree,q);
+    vector<int>safeNodes;
+    while(!q.empty()){
+        int curr=q.front();
+        safeNodes.push_back(curr);
+        q.pop();
+        for(int v:adj[curr]){
+            indegree[v]--;
+            if(indegree[v]==0){
+                q.push(v);
+            }
+        }
+    }
+    sort(safeNodes.begin(),safeNodes.end());
+    return safeNodes;
+}
+
+
+// Alien Dictionary
+// Input: words[] = ["baa", "abcd", "abca", "cab", "cad"]
+// Output: true
+// Explanation: A possible corrct order of letters in the alien dictionary is "bdac".
+// The pair "baa" and "abcd" suggests 'b' appears before 'a' in the alien dictionary.
+// The pair "abcd" and "abca" suggests 'd' appears before 'a' in the alien dictionary.
+// The pair "abca" and "cab" suggests 'a' appears before 'c' in the alien dictionary.
+// The pair "cab" and "cad" suggests 'b' appears before 'd' in the alien dictionary.
+// So, 'b' → 'd' → 'a' → 'c' is a valid ordering.
+string findOrder(vector<string> &words) {
+    set<char>s;
+    for(int i=0;i<words.size();i++){
+        for(char ch:words[i]){
+            s.insert(ch);
+        }
+    }
+    map<char,vector<char>>m;
+    for(int i=0;i<words.size()-1;i++){
+        int l=0;
+        while(l<words[i].length() && l<words[i+1].length() && words[i][l]==words[i+1][l]){
+            l++;
+        }
+        if (l == words[i+1].length() && l < words[i].length()) {
+                    return ""; // invalid ordering
+        }
+        if(l==words[i].length() && l==words[i+1].length()){
+            continue;
+        }
+        m[words[i][l]].push_back(words[i+1][l]);
+    }
+    // topo sort
+    map<char,int>indegree;
+    queue<char>q;
+    string str="";
+    for(auto it:s){
+        for(char v:m[it]){
+            indegree[v]++;
+        }
+    }
+    for(char it:s){
+        if(indegree[it]==0){
+            q.push(it);
+        }
+    }
+    while(!q.empty()){
+        char curr=q.front();
+        str+=curr;
+        q.pop();
+        for(auto it:m[curr]){
+            indegree[it]--;
+            if(indegree[it]==0){
+                q.push(it);
+            }
+        }
+    }
+    if(s.size()!=str.length()){
+        return "";
+    }
+    return str;
+}
+
+// optimized version of above problem
+string findOrder2(vector<string> &words) {
+    set<char>s;
+    for(int i=0;i<words.size();i++){
+        for(char ch:words[i]){
+            s.insert(ch);
+        }
+    }
+    vector<int>adj[s.size()];
+    for(int i=0;i<words.size()-1;i++){
+        string s1=words[i];
+        string s2=words[i+1];
+        int l=min(s1.length(),s2.length())
+        for(int j=0;j<l;j++){
+            if(s1[j]!=s2[j]){
+                adj[s1[j]-'a'].push_back(s2[j]-'a');
+                break;
+        }
+    }
+        if(s1.length()>s2.length())return "";//like if s1=abcd and s2=abc
+}
+    vector<int>topoSort=topoSort(s.size(),adj);
+    if(topoSort.size()!=s.size())return "";//graph is cyclic
+    string s="";
+    for(char ch:topoSort){
+        s+=(char)(ch+'a');
+    }
+    return s;
+}
