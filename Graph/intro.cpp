@@ -695,3 +695,68 @@ vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
     }
     return ans;
 }
+
+// SHORTEST PATH IN UNDIRECTED GRAPH
+ vector<int> shortestPath(vector<vector<int>>& adj, int src) {
+       queue<pair<int,int>>q;
+       vector<int>dist(adj.size(),INT_MAX);
+       q.push({src,0});
+       dist[src]=0;
+       while(!q.empty()){
+           int node=q.front().first;
+           int curr_time=q.front().second;
+           q.pop();
+           for(auto it:adj[node]){
+               if(dist[it]>curr_time+1){
+                   dist[it]=curr_time+1;
+                   q.push({it,curr_time+1});
+               }
+           }
+       }
+       for(int i=0;i<adj.size();i++){
+           if(dist[i]==INT_MAX){
+               dist[i]=-1;
+           }
+       }
+       return dist;
+    }
+
+// WORD LADDER
+// A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:
+
+// Every adjacent pair of words differs by a single letter.
+// Every si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.
+// sk == endWord
+// Given two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.
+
+ 
+
+// Example 1:
+
+// Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+// Output: 5
+// Explanation: One shortest transformation sequence is "hit" -> "hot" -> "dot" -> "dog" -> cog", which is 5 words long.
+int ladderLength(string beginWord, string endWord, vector<string>& wordList) {//TC-O(N*wordlength*26*logn) and 
+        unordered_set<string>s(wordList.begin(),wordList.end());
+        queue<pair<string,int>>q;
+        q.push({beginWord,1});
+        s.erase(beginWord);
+        while(!q.empty()){
+            string word=q.front().first;
+            int steps=q.front().second;
+            q.pop();
+            if(word==endWord)return steps;
+            for(int i=0;i<word.size();i++){
+                string original=word;
+                for(char ch='a';ch<='z';ch++){
+                    word[i]=ch;
+                    if(s.find(word)!=s.end()){//exist in set
+                        q.push({word,steps+1});
+                        s.erase(word);
+                    }
+                }
+                word=original;
+            }
+        }
+        return 0;
+    }

@@ -247,3 +247,41 @@ string findOrder2(vector<string> &words) {
     }
     return s;
 }
+
+
+// Shortest Path in Directed Acyclic graph
+void topoSort(vector<pair<int,int>>adj[],int visited[],stack<int>&s,int node){
+    visited[node]=true;
+    for(auto it:adj[node]){
+        if(!visited[i]){
+            topoSort(adj,visited,s,i);
+        }
+    }
+    s.push(node);
+}
+vector<int> shortestPath(int n,vector<pair<int,int>>adj[]){
+    int visited[n]={0};
+    stack<int>s;
+    for(int i=0;i<n;i++){
+        if(!visited[i]){
+            topoSort(adj,visited,s,i);
+        }
+    }
+    int ans[n]={__INT16_MAX__};
+    ans[s.top()]=0;
+    while(!s.empty()){
+        int node=s.top();
+        s.pop();
+        if(node!=__INT16_MAX__){
+            for(auto it:adj[curr]){
+                int v=it.first;
+                int wt=it.second;
+                if(ans[node]+wt<ans[v]){
+                    ans[v]=ans[node]+wt;
+                }
+            }
+        }
+    }
+    return ans;
+}
+    
