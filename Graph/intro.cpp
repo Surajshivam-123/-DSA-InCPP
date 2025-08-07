@@ -760,3 +760,126 @@ int ladderLength(string beginWord, string endWord, vector<string>& wordList) {//
         }
         return 0;
     }
+
+// A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:
+
+// Every adjacent pair of words differs by a single letter.
+// Every si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.
+// sk == endWord
+// Given two words, beginWord and endWord, and a dictionary wordList, return all the shortest transformation sequences from beginWord to endWord, or an empty list if no such sequence exists. Each sequence should be returned as a list of the words [beginWord, s1, s2, ..., sk].
+
+ 
+
+// Example 1:
+
+// Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+// Output: [["hit","hot","dot","dog","cog"],["hit","hot","lot","log","cog"]]
+// Explanation: There are 2 shortest transformation sequences:
+// "hit" -> "hot" -> "dot" -> "dog" -> "cog"
+// "hit" -> "hot" -> "lot" -> "log" -> "cog" 
+
+// for interview
+vector<vector<string>> findLadders(string beginWord, string endWord, vector<string>& wordList) {
+        vector<vector<string>>ans;
+        unordered_set<string>s(wordList.begin(),wordList.end());
+        queue<vector<string>>q;
+        q.push({beginWord});
+        int level=0;
+        vector<string>del;
+        while(!q.empty()){
+            vector<string>curr_v=q.front();
+            string lastWord=curr_v.back();
+            q.pop();
+            if(curr_v.size()>level){
+                level++;
+                for(auto it:del){
+                    s.erase(it);
+                }
+                del.clear();
+            }
+            if(lastWord==endWord){
+                if(ans.size()==0){
+                    ans.push_back(curr_v);
+                }else if(ans[0].size()==curr_v.size()){
+                    ans.push_back(curr_v);
+                }
+            }
+            for(int i=0;i<lastWord.size();i++){
+                string original=lastWord;
+                for(char ch='a';ch<='z';ch++){
+                    lastWord[i]=ch;
+                    if(s.find(lastWord)!=s.end()){//exist
+                        curr_v.push_back(lastWord);
+                        del.push_back(lastWord);
+                        q.push(curr_v);
+                        curr_v.pop_back();
+                }
+            }
+            lastWord=original;
+        }
+    }
+    return ans;
+    }
+
+// optimized approach not use in interview
+class Solution {
+private:
+    vector<vector<string>> ans;
+    map<string, int> m;
+    string b;
+    void dfs(string endWord, vector<string> vec) {
+        if (b == endWord) {
+            reverse(vec.begin(),vec.end());
+            ans.push_back(vec);
+            return;
+        }
+        for (int i = 0; i < endWord.size(); i++) {
+            string original = endWord;
+            for (char ch = 'a'; ch <= 'z'; ch++) {
+                endWord[i] = ch;
+                if (m.find(endWord)!=m.end() && m[original] - 1 == m[endWord]) {
+                    vec.push_back(endWord);
+                    dfs(endWord,vec);
+                    vec.pop_back();
+                }
+            }
+            endWord = original;
+        }
+    }
+
+public:
+    vector<vector<string>> findLadders(string beginWord, string endWord,
+                                       vector<string>& wordList) {
+        this->b=beginWord;
+        queue<string> q;
+        unordered_set<string> s(wordList.begin(), wordList.end());
+        q.push(beginWord);
+        s.erase(beginWord);
+        m[beginWord] = 0;
+        while (!q.empty()) {
+            string word = q.front();
+            int level = m[word];
+            q.pop();
+            m[word] = level;
+            if(word==endWord)break;
+            for (int i = 0; i < word.size(); i++) {
+                char original = word[i];
+                for (char ch = 'a'; ch <= 'z'; ch++) {
+                    word[i] = ch;
+                    if (s.find(word) != s.end()) {
+                        s.erase(word);
+                        q.push(word);
+                        m[word]=level+1;
+                    }
+                }
+                word[i] = original;
+            }
+        }
+        if(m.find(endWord)!=m.end()){
+            vector<string> vec;
+            vec.push_back(endWord);
+            dfs(endWord,vec);
+        }
+        return ans;
+    }
+};
