@@ -13,6 +13,7 @@
 using namespace std;
 
 class DisjointSet{
+    public:
     vector<int>rank,parent,size;
 public:
     DisjointSet(int n){
@@ -51,11 +52,11 @@ public:
         if(pu==pv)return;
         if(size[pu]<size[pv]){
             parent[pu]=pv;
-            size[pu]+=size[pv];
+            size[pv]+=size[pu];
         }
         else{
             parent[pv]=pu;
-            size[pv]+=size[pu];
+            size[pu]+=size[pv];
         }
     }
 };
@@ -267,9 +268,126 @@ vector<int> numOfIslands(int n, int m, vector<vector<int>> &operators) {
        }
         return ans;
     }
- 
 
- 
+    // MAKING A LARGE ISLAND
+//  You are given an n x n binary matrix grid. You are allowed to change at most one 0 to be 1.
+
+// Return the size of the largest island in grid after applying this operation.
+
+// An island is a 4-directionally connected group of 1s.
+
+// Example 1:
+
+// Input: grid = [[1,0],[0,1]]
+// Output: 3
+// Explanation: Change one 0 to 1 and connect two 1s, then we get an island with area = 3.
+// Example 2:
+
+// Input: grid = [[1,1],[1,0]]
+// Output: 4
+// Explanation: Change the 0 to 1 and make the island bigger, only one island with area = 4.
+// Example 3:
+
+// Input: grid = [[1,1],[1,1]]
+// Output: 4
+// Explanation: Can't change any 0 to 1, only one island with area = 4.
+ int largestIsland(vector<vector<int>>& grid) {
+        int n = grid.size();
+        DisjointSet ds(n * n - 1);
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] != 1)
+                    continue;
+                vector<int> delRow = {-1, 0, 1, 0};
+                vector<int> delCol = {0, 1, 0, -1};
+                for (int k = 0; k < 4; k++) {
+                    int newRow = i + delRow[k];
+                    int newCol = j + delCol[k];
+                    if (newRow >= 0 && newRow < n && newCol >= 0 &&
+                        newCol < n && grid[newRow][newCol] == 1) {
+                        if (ds.findUltimateParent(* n + j) !=
+                            ds.findUltimateParent(newRow * n + newCol)) {
+                            ds.unionBySize(i * n + j, newRow * n + newCol);
+                        }
+                    }
+                }
+            }
+        }
+        int ans=0;
+        for(auto it:ds.size){
+            ans=max(ans,it);
+        }
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] != 1) {
+                    vector<int> delRow = {-1, 0, 1, 0};
+                    vector<int> delCol = {0, 1, 0, -1};
+                    set<int>parent;
+                    for (int k = 0; k < 4; k++) {
+                        int newRow = i + delRow[k];
+                        int newCol = j + delCol[k];
+                        if (newRow >= 0 && newRow < n && newCol >= 0 &&
+                            newCol < n && grid[newRow][newCol] == 1){
+                                parent.insert(ds.findUltimateParent(newRow*n+newCol));
+                            }
+                    }
+                    int cnt=1;
+                    for(auto p:parent){
+                        cnt+=ds.size[p];
+                    }
+                    ans=max(ans,cnt);
+                }
+            }
+        }
+        return ans;
+    }
+    // Maximum Stone Removal
+
+// Given an 2D array of non-negative integers stones[][] where stones[i] = [xi, yi] represents the location of the ith stone on a 2D plane, the task is to return the maximum possible number of stones that you can remove.
+
+// A stone can be removed if it shares either the same row or the same column as another stone that has not been removed.
+
+// Note: Each coordinate point may have at most one stone.
+
+// Examples:
+
+// Input: stones[][] = [[0, 0], [0, 1], [1, 0], [1, 2], [2, 1], [2, 2]]
+// Output:5
+// Explanation:
+// One way to remove 5 stones is as follows:
+// 1. Remove stone [2, 2] because it shares the same row as [2, 1].
+// 2. Remove stone [2, 1] because it shares the same column as [0, 1].
+// 3. Remove stone [1, 2] because it shares the same row as [1, 0].
+// 4. Remove stone [1, 0] because it shares the same column as [0, 0].
+// 5. Remove stone [0, 1] because it shares the same row as [0, 0].
+// Stone [0, 0] cannot be removed since it does not share any row/column with another stone still on the plane.
+ int maxRemove(vector<vector<int>>& stones, int n) {
+        int row=0,col=0;
+        for(auto it:stones){
+            row=max(row,it[0]);
+            col=max(col,it[1]);
+        }
+        row++;col++;
+        DisjointSet ds(row+col-1);
+        // every row no. and col np. is treated as a node of ds
+        // column node=number of row+columnNo.
+        // ans=summation of sizeof each component-1 or (n-number of components)
+        unordered_map<int,int>stoneNode;
+        for(auto it:stones){
+            int rowNode=it[0];
+            int colNode=row+it[1];
+            ds.unionBySize(rowNode,colNode);
+            stoneNode[rowNode]=1;//to track if any row or col is completely empty
+            stoneNode[colNode]=1;
+        }
+        int nc=0;
+        for(auto it:stoneNode){
+            if(ds.findUltimateParent(it.first)==it.first){
+                nc++;
+            }
+        }
+        return n-nc;
+    }
 int main(){
     DisjointSet ds(7);
     ds.unionBySize(1,2);
@@ -285,6 +403,11 @@ int main(){
         cout<<"Different"<<endl;
     }
     ds.unionBySize(3,7);
+    vector<int>size=ds.size;
+    for(auto it:size){
+        cout<<it<<" ";
+    }
+    cout<<endl;
     if(ds.findUltimateParent(3)==ds.findUltimateParent(7)){
         cout<<"Same"<<endl;
     }
