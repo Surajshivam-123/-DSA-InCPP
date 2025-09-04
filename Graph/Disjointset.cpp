@@ -388,6 +388,8 @@ vector<int> numOfIslands(int n, int m, vector<vector<int>> &operators) {
         }
         return n-nc;
     }
+
+    
 int main(){
     DisjointSet ds(7);
     ds.unionBySize(1,2);

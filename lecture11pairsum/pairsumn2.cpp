@@ -2,16 +2,16 @@
 #include<vector>
 using namespace std;
 int main(){
-    vector<int>god={2,3,5,7,8};
+    vector<int>arr={2,3,5,7,8};
     int target=9;
-    vector<int>suraj;
-    for(int i=0;i<god.size();i++){
-        for(int j=i+1;j<god.size();j++){
-            if((god[i]+god[j])==target){
-                suraj.push_back(god[i]);
-                suraj.push_back(god[j]);
+    vector<int>ans;
+    for(int i=0;i<arr.size();i++){
+        for(int j=i+1;j<arr.size();j++){
+            if((arr[i]+arr[j])==target){
+                ans.push_back(arr[i]);
+                ans.push_back(arr[j]);
             }
         }
     }
-cout<<suraj[0]<<','<<suraj[1];
+cout<<ans[0]<<','<<ans[1];
 }

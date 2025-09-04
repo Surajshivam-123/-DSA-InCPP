@@ -3,14 +3,14 @@
 using namespace std;
 int main(){
     //sorted array
-    vector<int>god={2,3,5,7,8};
-    int st=0,end=(god.size()-1);
+    vector<int>arr={2,3,5,7,8};
+    int st=0,end=(arr.size()-1);
     int target=9;
     while(st<=end){
-        if((god[st]+god[end])>target){
+        if((arr[st]+arr[end])>target){
         end--;
         }
-        else if((god[st]+god[end])<target){
+        else if((arr[st]+arr[end])<target){
         st++;
         }
        else{

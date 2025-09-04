@@ -883,3 +883,207 @@ public:
         return ans;
     }
 };
+// Find Strongly Connected Components
+
+// SCC Definition: Maximal subgraphs where every vertex is reachable from every other vertex.
+// Kosaraju's Algorithm Steps:
+// First DFS: Sort nodes by finishing time in a directed graph.
+// Transpose Graph: Reverse all edges to isolate SCCs.
+// Second DFS: Perform DFS on transposed graph in reverse finishing order.
+// Intuition:
+// Edge reversal prevents traversal into adjacent SCCs, isolating them.
+// Sorting by finishing time ensures nodes deeper in SCCs are processed first.
+// Coding Steps:
+// Run DFS to store finishing times.
+// Transpose the graph by reversing edges.
+// Run DFS on transposed graph using stored order to identify SCCs.
+// Complexity:
+// Time: O(V+E)
+// O(V+E) (two DFS traversals).
+// Space: O(V+E)
+// O(V+E) (graph storage).
+void dfs(int node,vector<int>&visited,vector<vector<int>> &adj,stack<int>&st){
+        visited[node]=1;
+        for(auto it:adj[node]){
+            if(!visited[it]){
+                dfs(it,visited,adj,st);
+            }
+        }
+        st.push(node);
+    }
+    void dfs3(int node,vector<int>&visited,vector<vector<int>> &adj){
+        visited[node]=1;
+        for(auto it:adj[node]){
+            if(!visited[it]){
+                dfs3(it,visited,adj);
+            }
+        }
+    }
+    int kosaraju(vector<vector<int>> &adj) {
+        int v=adj.size();
+        // perform dfs to find sort according to finish time
+        stack<int>st;
+        vector<int>visited(v,0);
+        for(int i=0;i<v;i++){
+            if(!visited[i]){
+                dfs(i,visited,adj,st);
+            }
+        }
+        // reverse the edges
+        vector<vector<int>>adjR(v);
+        for(int i=0;i<v;i++){
+            visited[i]=0;
+            for(auto it:adj[i]){
+                adjR[it].push_back(i);
+            }
+        }
+        // perform the dfs to find scc
+        int scc=0;
+        while(!st.empty()){
+            int node=st.top();
+            st.pop();
+            if(!visited[node]){
+                scc++;
+                dfs3(node,visited,adjR);
+            }
+        }
+        return scc;
+    }
+
+// find bridges in the graph
+// Bridge Definition: An edge whose removal increases the number of connected components in a graph.
+// Tarjan's Algorithm:
+// Uses DFS to calculate two values for each node:
+// Time of Insertion (tin): When the node is visited in DFS.
+// Lowest Time of Insertion (low): The smallest tin reachable from the node.
+// Algorithm Steps:
+// Perform DFS traversal and calculate tin and low for each node.
+// For an edge (u, v), check if low[v] > tin[u]. If true, (u, v) is a bridge.
+// Intuition:
+// If low[v] > tin[u], it means v cannot reach any ancestor of u without passing through (u, v).
+// Coding Highlights:
+// Use adjacency list for graph representation.
+// Maintain arrays for tin, low, and visited nodes.
+// Pass parent node in DFS to avoid backtracking to the immediate parent.
+// Complexity:
+// Time: O(V+E)
+// O(V+E) (DFS traversal).
+// Space: O(V+E)
+// O(V+E) (adjacency list and recursion stack)
+
+class Solution {
+    int timer=1;
+    void dfs(int node,int parent,vector<vector<int>>&bridge,vector<vector<int>>&adj,vector<int>&visited,vector<int>&minT,vector<int>&time){//,vector<int>&time
+        visited[node]=1;
+         time[node]=timer;
+        minT[node]=timer++;
+        for(int v:adj[node]){
+            if(v==parent)continue;
+            if(!visited[v]){
+                dfs(v,node,bridge,adj,visited,minT,time);
+                minT[node]=min(minT[node],minT[v]);
+                if(minT[v]>time[node]){
+                    bridge.push_back({v,node});
+                }
+            }
+            else{
+                minT[node]=min(minT[node],minT[v]);
+            }
+        }
+        
+        // // if someone is smaller or equal to parent then that edge will not be considered as bridge edge
+    }
+public:
+    vector<vector<int>> criticalConnections(int n, vector<vector<int>>& connections) {
+        vector<vector<int>>adj(n);
+        for(auto it:connections){
+            adj[it[0]].push_back(it[1]);
+            adj[it[1]].push_back(it[0]);
+        }
+        vector<int>visited(n,0);
+        vector<int>minT(n);
+        vector<int>time(n);
+        vector<vector<int>>bridge;
+        dfs(0,-1,bridge,adj,visited,minT,time);
+        return bridge;
+    }
+};
+// Definition:
+
+// Articulation points are nodes whose removal increases the number of connected components in a graph.
+// Conditions:
+
+// A node is an articulation point if it meets:
+// Root Node Condition: If the root of the DFS tree has two or more children.
+// Forward Edge Condition: If any child node cannot reach an ancestor of the current node.
+// DFS Algorithm:
+
+// Use DFS to traverse the graph.
+// Track time of insertion and low time for each node.
+// Compare low time of child with time of parent.
+// Special Cases:
+
+// Starting nodes with multiple components.
+// Nodes that are part of cycles or bridges.
+// Steps to Identify Articulation Points:
+// Perform DFS traversal.
+// Calculate time and low values for all nodes.
+// Apply articulation point conditions during backtracking.
+// Code Implementation:
+// Key Variables:
+// visited[]: Tracks visited nodes.
+// time[] and low[]: Track discovery and low times.
+// parent[]: Keeps parent-child relationships.
+// Logic:
+// During DFS, compute and compare low values.
+// Mark articulation points using hashing.
+// Complexity Analysis:
+// Time Complexity: O(V+E)O(V+E), where 
+// V is vertices and E is edges.
+// Space Complexity: O(V)
+// O(V) for storing visited nodes and parent-child relationships.
+int timer=1;
+    void dfs(int node,int parent,vector<int> adj[],vector<int>&visited,vector<int>&time,vector<int>&minT,vector<int>&ans){
+        visited[node]=1;
+        time[node]=minT[node]=timer;
+        timer++;
+        int child=0;
+        for(int v:adj[node]){
+            if(v==parent)continue;
+            if(!visited[v]){
+                dfs(v,node,adj,visited,time,minT,ans);
+                minT[node]=min(minT[node],minT[v]);
+                child++;
+                if(minT[v]>=time[node] && parent!=-1){
+                    ans[node]=1;
+                }
+            }
+            else{
+                minT[node]=min(minT[node],time[v]);
+            }
+        }
+        if(child>1 && parent==-1){
+            ans[node]=1;
+        }
+        
+    }
+  public:
+    vector<int> articulationPoints(int V, vector<int> adj[]) {
+       vector<int>visited(V,0);
+       vector<int>time(V);
+       vector<int>minT(V);
+       vector<int>ans(V,0);
+       for(int i=0;i<V;i++){
+           if(!visited[i]){
+               dfs(i,-1,adj,visited,time,minT,ans);
+           }
+       }
+       vector<int>ap;
+       for(int i=0;i<V;i++){
+           if(ans[i]==1){
+               ap.push_back(i);
+           }
+       }
+        if(ap.size()==0)return {-1};
+        return ap;
+    }
