@@ -32,7 +32,6 @@ bool isvalid(int mid,int m,vector<int>book){//Time complexityO(n)
         }
         else
             return 0;
-            
 }
 
 int allocatebooks(vector<int>arr,int m){//Time complexity n*logn

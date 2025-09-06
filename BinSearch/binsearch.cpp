@@ -18,22 +18,22 @@ int binarysearch(int arr[],int n,int target){
     return -1;
 }
 //binary search using recursion
-    int binarysearchr(int arr[],int st,int end,int tar){
-        if(st<=end){
-        int mid=st+(end-st)/2;
-        if(arr[mid]<tar){
-            st=++mid;
-            return binarysearchr( arr,st,end,tar);
-        }
-        else if(arr[mid]>tar){
-            end=--mid;
-            return binarysearchr( arr,st,end,tar);
-        }
-        else 
-            return mid;
-        }
-        return -1;
+int binarysearchr(int arr[],int st,int end,int tar){
+    if(st<=end){
+    int mid=st+(end-st)/2;
+    if(arr[mid]<tar){
+        st=++mid;
+        return binarysearchr( arr,st,end,tar);
     }
+    else if(arr[mid]>tar){
+        end=--mid;
+        return binarysearchr( arr,st,end,tar);
+    }
+    else 
+        return mid;
+    }
+    return -1;
+}
 
 int main(){
 int suraj[]={-1,3,4,5,9,12};//sorted array is must
