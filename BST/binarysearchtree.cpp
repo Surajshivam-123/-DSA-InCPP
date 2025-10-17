@@ -1,6 +1,7 @@
 #include<iostream>
 #include<vector>
 #include<stack>
+#include <cstdint>
 using namespace std;
 //Binary Search tree:-left child is always smaller or equal to parent and right child is always greater than parent
 class Node{
