@@ -99,10 +99,6 @@ void solve()
 }
 int main()
 {
-        // #ifndef ONLINE_JUDGE
-        // freopen("input.txt","r",stdin);
-        // freopen("output.txt","w",stdout);
-        // #endif
         // int n=6;
         // vector<int>segt(4*n,0);
         // vector<int>arr={1,3,2,0,4,5};
