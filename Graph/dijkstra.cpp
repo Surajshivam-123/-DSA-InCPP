@@ -3,10 +3,12 @@
 //Two ways
 
 // Using priority queue
+
+
 // store graph in the form of adjacency list which contain pair conataining adjacent nodes and weights .
 //dijkstra does not work in negative weight or negative cycle due to infinite loops
 vector<int> dijkstra(int V, vector<vector<vector<int>>> adj[], int S) {//TC-O(Elogv)or v**2log(v)
-    //min-heap
+    //min-heap  distance node
     priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
     // general form of priority_queue
     // priority_queue<Type, Container, Compare>default comparator is less
@@ -59,30 +61,30 @@ vector<int> dijkstraSet(int V, vector<vector<int>> adj[], int S){
 // we can use queue as well but it will not find minimal first and traverse lot of paths unnecessarily
 
 // Function to find the shortest path from source to all other nodes
-    vector<int> shortestPath(vector<vector<int>>& adj, int src) {
-        int V=adj.size();
-       priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
-       vector<int>dist(V,INT_MAX);
-       dist[src]=0;
-       pq.push({src,0});
-       while(!pq.empty()){
-           int node=pq.top().first;
-           int distance=pq.top().second;
-           pq.pop();
-           for(auto it:adj[node]){
-               if(distance+1<dist[it]){
-                   dist[it]=distance+1;
-                   pq.push({it,dist[it]});
-               }
-           }
-       }
-       for(int i=0;i<V;i++){
-           if(dist[i]==INT_MAX){
-               dist[i]=-1;
-           }
-       }
-       return dist;
+vector<int> shortestPath(vector<vector<int>>& adj, int src) {
+    int V=adj.size();
+    queue<pair<int,int>>pq;
+    vector<int>dist(V,INT_MAX);
+    dist[src]=0;
+    pq.push({src,0});
+    while(!pq.empty()){
+        int node=pq.top().first;
+        int distance=pq.top().second;
+        pq.pop();
+        for(auto it:adj[node]){
+            if(distance+1<dist[it]){
+                dist[it]=distance+1;
+                pq.push({it,dist[it]});
+            }
+        }
     }
+    for(int i=0;i<V;i++){
+        if(dist[i]==INT_MAX){
+            dist[i]=-1;
+        }
+    }
+    return dist;
+}
 
  // Function to find the shortest path from 1 to n
 //  You are given a weighted undirected graph having n vertices numbered from 1 to n and m edges along with their weights. Find the shortest weight path between the vertex 1 and the vertex n,  if there exists a path, and return a list of integers whose first element is the weight of the path, and the rest consist of the nodes on that path. If no path exists, then return a list containing a single element -1.
@@ -189,24 +191,24 @@ int minimumEffortPath(vector<vector<int>>& heights) {
     q.push({0,{0,0}});
     effort[0][0]=0;
     while(!q.empty()){
-    int eff=q.top().first;
-    pair<int,int>box=q.top().second;
-    vector<int>dc={-1,0,1,0};
-    vector<int>dr={0,1,0,-1};
-    if(box.first==n-1 && box.second==m-1)return eff;
-    q.pop();
-    for(int i=0;i<4;i++){
-        int newR=box.first+dr[i];
-        int newC=box.second+dc[i];
-        int ef=INT_MAX;
-        if(newR>=0 && newR<n && newC>=0 && newC<m){
-            ef=max(abs(heights[newR][newC]-heights[box.first][box.second]),eff);
+        int eff=q.top().first;
+        pair<int,int>box=q.top().second;
+        vector<int>dc={-1,0,1,0};
+        vector<int>dr={0,1,0,-1};
+        if(box.first==n-1 && box.second==m-1)return eff;
+        q.pop();
+        for(int i=0;i<4;i++){
+            int newR=box.first+dr[i];
+            int newC=box.second+dc[i];
+            int ef=INT_MAX;
+            if(newR>=0 && newR<n && newC>=0 && newC<m){
+                ef=max(abs(heights[newR][newC]-heights[box.first][box.second]),eff);
+            }
+            if(newR>=0 && newR<n && newC>=0 && newC<m && ef<effort[newR][newC]){
+                effort[newR][newC]=ef;
+                q.push({ef,{newR,newC}});
+            }
         }
-        if(newR>=0 && newR<n && newC>=0 && newC<m && ef<effort[newR][newC]){
-            effort[newR][newC]=ef;
-            q.push({ef,{newR,newC}});
-        }
-    }
     }
     return effort[n-1][m-1];
 }
@@ -229,7 +231,7 @@ int minimumEffortPath(vector<vector<int>>& heights) {
 // The optimal path with at most 1 stop from city 0 to 3 is marked in red and has cost 100 + 600 = 700.
 // Note that the path through cities [0,1,2,3] is cheaper but is invalid because it uses 2 stops.
 
-// we are not using priority queue beause k is increasin continuously 
+// we are not using priority queue beause k is increasing continuously 
 //SO TC->O(E(number of edges))
 int findCheapestPrice(int n, vector<vector<int>>& flights, int src, int dst, int k) {
     vector<vector<pair<int,int>>>adj(n);
@@ -355,4 +357,223 @@ int countPaths(int n, vector<vector<int>>& roads) {//TC-O(ElogV)
         return ways[n-1] % mod;
 }
 
-// 
+// Reachable nodes in subdivided graph
+// You are given an undirected graph (the "original graph") with n nodes labeled from 0 to n - 1. You decide to subdivide each edge in the graph into a chain of nodes, with the number of new nodes varying between each edge.
+
+// The graph is given as a 2D array of edges where edges[i] = [ui, vi, cnti] indicates that there is an edge between nodes ui and vi in the original graph, and cnti is the total number of new nodes that you will subdivide the edge into. Note that cnti == 0 means you will not subdivide the edge.
+
+// To subdivide the edge [ui, vi], replace it with (cnti + 1) new edges and cnti new nodes. The new nodes are x1, x2, ..., xcnti, and the new edges are [ui, x1], [x1, x2], [x2, x3], ..., [xcnti-1, xcnti], [xcnti, vi].
+
+// In this new graph, you want to know how many nodes are reachable from the node 0, where a node is reachable if the distance is maxMoves or less.
+
+// Given the original graph and maxMoves, return the number of nodes that are reachable from node 0 in the new graph.
+
+// Input: edges = [[0,1,10],[0,2,1],[1,2,2]], maxMoves = 6, n = 3
+// Output: 13
+// Explanation: The edge subdivisions are shown in the image above.
+// The nodes that are reachable are highlighted in yellow.
+
+class Solution {
+public:
+    int reachableNodes(vector<vector<int>>& edges, int maxMoves, int n) {
+        vector<vector<pair<int,int>>> adj(n);
+        for (auto &e : edges) {
+            adj[e[0]].push_back({e[1], e[2] + 1});
+            adj[e[1]].push_back({e[0], e[2] + 1});
+        }
+        vector<int> dist(n, INT_MAX);
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<>> pq;
+        dist[0] = 0;
+        pq.push({0, 0});
+
+        while (!pq.empty()) {
+            auto [d, u] = pq.top();
+            pq.pop();
+            for (auto &[v, w] : adj[u]) {
+                if (d + w < dist[v]) {
+                    dist[v] = d + w;
+                    pq.push({dist[v], v});
+                }
+            }
+        }
+
+        int ans = 0;
+        for (int i = 0; i < n; i++) {
+            if (dist[i] <= maxMoves) ans++;
+        }
+        for (auto &e : edges) {
+            int u = e[0], v = e[1], k = e[2];
+
+            int fromU = max(0, maxMoves - dist[u]);
+            int fromV = max(0, maxMoves - dist[v]);
+
+            ans += min(k, fromU + fromV);
+        }
+
+        return ans;
+    }
+};
+
+
+// Source to destination equal to target
+
+// You are given an undirected weighted connected graph containing n nodes labeled from 0 to n - 1, and an integer array edges where edges[i] = [ai, bi, wi] indicates that there is an edge between nodes ai and bi with weight wi.
+
+// Some edges have a weight of -1 (wi = -1), while others have a positive weight (wi > 0).
+
+// Your task is to modify all edges with a weight of -1 by assigning them positive integer values in the range [1, 2 * 109] so that the shortest distance between the nodes source and destination becomes equal to an integer target. If there are multiple modifications that make the shortest distance between source and destination equal to target, any of them will be considered correct.
+
+// Return an array containing all edges (even unmodified ones) in any order if it is possible to make the shortest distance from source to destination equal to target, or an empty array if it's impossible.
+
+// Note: You are not allowed to modify the weights of edges with initial positive weights.
+// Input: n = 5, edges = [[4,1,-1],[2,0,-1],[0,3,-1],[4,3,-1]], source = 0, destination = 1, target = 5
+// Output: [[4,1,1],[2,0,1],[0,3,3],[4,3,1]]
+// Explanation: The graph above shows a possible modification to the edges, making the distance from 0 to 1 equal to 5.
+
+class Solution {
+public:
+    const int INF = 2e9;
+
+    vector<vector<int>> modifiedGraphEdges(int n, vector<vector<int>>& edges,
+                                           int source, int destination,
+                                           int target) {
+        vector<vector<pair<int, int>>> graph(n);
+
+        // Step 1: Build the graph, excluding edges with -1 weights
+        for (const auto& edge : edges) {
+            if (edge[2] != -1) {
+                graph[edge[0]].emplace_back(edge[1], edge[2]);
+                graph[edge[1]].emplace_back(edge[0], edge[2]);
+            }
+        }
+
+        // Step 2: Compute the initial shortest distance from source to
+        // destination
+        int currentShortestDistance =
+            runDijkstra(n, source, destination, graph);
+        if (currentShortestDistance < target) {
+            return vector<vector<int>>();
+        }
+
+        bool matchesTarget = (currentShortestDistance == target);
+
+        // Step 3: Iterate through each edge to adjust its weight if necessary
+        for (auto& edge : edges) {
+            if (edge[2] != -1)
+                continue;  // Skip edges with already known weights
+
+            // Set edge weight to a large value if current distance matches
+            // target, else set to 1
+            edge[2] = matchesTarget ? INF : 1;
+            graph[edge[0]].emplace_back(edge[1], edge[2]);
+            graph[edge[1]].emplace_back(edge[0], edge[2]);
+
+            // Step 4: If current shortest distance does not match target
+            if (!matchesTarget) {
+                // Compute the new shortest distance with the updated edge
+                // weight
+                int newDistance = runDijkstra(n, source, destination, graph);
+                // If the new distance is within the target range, update edge
+                // weight to match target
+                if (newDistance <= target) {
+                    matchesTarget = true;
+                    edge[2] += target - newDistance;
+                }
+            }
+        }
+
+        // Return modified edges if the target distance is achieved, otherwise
+        // return an empty result
+        return matchesTarget ? edges : vector<vector<int>>();
+    }
+
+private:
+    int runDijkstra(int n, int source, int destination,
+                    const vector<vector<pair<int, int>>>& graph) {
+        vector<int> minDistance(n, INF);
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<>>
+            minHeap;
+
+        minDistance[source] = 0;
+        minHeap.emplace(0, source);
+
+        while (!minHeap.empty()) {
+            auto [d, u] = minHeap.top();
+            minHeap.pop();
+
+            if (d > minDistance[u]) continue;
+
+            for (const auto& [v, weight] : graph[u]) {
+                if (d + weight < minDistance[v]) {
+                    minDistance[v] = d + weight;
+                    minHeap.emplace(minDistance[v], v);
+                }
+            }
+        }
+
+        return minDistance[destination];
+    }
+};
+
+// Shortest cycle in graph
+// There is a bi-directional graph with n vertices, where each vertex is labeled from 0 to n - 1. The edges in the graph are represented by a given 2D integer array edges, where edges[i] = [ui, vi] denotes an edge between vertex ui and vertex vi. Every vertex pair is connected by at most one edge, and no vertex has an edge to itself.
+
+// Return the length of the shortest cycle in the graph. If no cycle exists, return -1.
+
+// A cycle is a path that starts and ends at the same node, and each edge in the path is used only once.
+class Solution {
+    int bfs(int src,vector<vector<int>>&adj,vector<int>dist){
+        int n=adj.size();
+        int ans=1e9;
+        queue<int>q;
+        vector<int>parent(n,-1);
+        dist[src]=0;
+        q.push(src);
+        while(!q.empty()){
+            int node=q.front();
+            q.pop();
+            for(int adjNode:adj[node]){
+                if(dist[adjNode]==1e9){
+                    dist[adjNode]=dist[node]+1;
+                    parent[adjNode]=node;
+                    q.push(adjNode);
+                }
+                else if(parent[adjNode]!=node && parent[node]!=adjNode){
+                    ans=min(ans,dist[adjNode]+dist[node]+1);
+                }
+            }
+        }
+        return ans;
+    }
+public:
+    int findShortestCycle(int n, vector<vector<int>>& edges) {
+        vector<vector<int>>adj(n);
+        vector<int>dist(n,1e9);
+        int ans=1e9;
+        for(auto it:edges){
+            adj[it[0]].push_back(it[1]);
+            adj[it[1]].push_back(it[0]);
+        }
+        for(int i=0;i<n;i++){
+            if(dist[i]==1e9){
+                int val=bfs(i,adj,dist);
+                ans=min(ans,val);
+                // cout<<val<<" ";
+            }
+        }
+        if(ans==1e9)return -1;
+        return ans;
+    }
+};
+
+
+// All Problems
+// 1.Find shortest path from source to all other nodes
+// 2.Find shortest path from source cell to destination cell in matrix
+// 3.Hiker
+// 4.Cheapest flight within k loops
+// 5.Minimum multiplications to reach end
+// 6.Number of ways to arrive destination
+// 7.Reachable nodes in subdivided graph
+// 8.Source to destination equal to target
+// 9.Shortest cycle in graph

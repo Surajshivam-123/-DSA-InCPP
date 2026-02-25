@@ -4,7 +4,7 @@
 //                      t5->0<-4t
 //                      |       |
 //                      h2->3->1h
-// adjacent list 5-{0,2},4-{0,1},2-{3},3-{1}
+// adjacent list 5-{0,2},4-{0,1},3-{1},2-{3},1-{},0-{}
 // topo sort 5 4 2 3 1 0 or 4 5 2 3 1 0 (parent node comes before all child node)
 
 // using dfs use stack
@@ -70,8 +70,8 @@ vector<int> topoSort_bfs(vector<vector<int>>adj[]){//SC-O(n) and TC-(V+2E)
     return ans;
 }
 
-// detect cycle in directed graph using toposort
-// if graph would be cyclic then toposort would not have n elements but less than n
+// detect cycle in directed graph using toposort 
+// if graph would be cyclic then toposort would not have n elements but less than n 
 bool detectCycleInDirectedGraph(vector < vector<int>>& adj){
     int n=adj.size();
     queue<int>q;
@@ -253,8 +253,8 @@ string findOrder2(vector<string> &words) {
 void topoSort(vector<pair<int,int>>adj[],int visited[],stack<int>&s,int node){
     visited[node]=true;
     for(auto it:adj[node]){
-        if(!visited[i]){
-            topoSort(adj,visited,s,i);
+        if(!visited[it.first]){
+            topoSort(adj,visited,s,it.first);
         }
     }
     s.push(node);
@@ -273,7 +273,7 @@ vector<int> shortestPath(int n,vector<pair<int,int>>adj[]){
         int node=s.top();
         s.pop();
         if(node!=__INT16_MAX__){
-            for(auto it:adj[curr]){
+            for(auto it:adj[node]){
                 int v=it.first;
                 int wt=it.second;
                 if(ans[node]+wt<ans[v]){

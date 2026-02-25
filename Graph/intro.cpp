@@ -47,6 +47,7 @@
 // Space-Complexity -O(N*N)
 #include<vector>
 #include<iostream>
+#include<queue>
 vector<vector<int>> matrix(int n,vector<pair<int,int>>in){
     vector<vector<int>> graph(n,vector<int>(n,0));
     for(int i=0;i<in.size();i++){
@@ -111,6 +112,11 @@ vector<int>* list(int n,vector<pair<int,int>>in){
 void dfs(vector<int> adj[],int node,vector<bool>&visited){
     visited[node]=true;
     cout<<node<<" ";
+    for(auto adjNode:adj[node]){
+        if(!visited[adjNode]){
+            dfs(adj,adjNode,visited);
+        }
+    }
 } 
 
 
@@ -127,11 +133,11 @@ void traverse(vector<int> adj[],int n){
 // Make a Queue in which we have to push all the neighbour of back node and pop and print the back node
 // Make a visited array to track whether a particular node is visited before or not
 
-void bfs_of_graph(vector<int> adj[],int n){//SC-O(2*N) and TC-O(N+Total degree)Total degree =2*Number of edges
+void bfs_of_graph(vector<int> adj[],int n,int src){//SC-O(2*N) and TC-O(N+Total degree)Total degree =2*Number of edges
     int visited[n]={0};
     queue<int>q;
-    q.push(0);
-    visited[0]=1;
+    q.push(src);
+    visited[src]=1;
     while(!q.empty()){
         int node=q.front();
         q.pop();
@@ -144,23 +150,14 @@ void bfs_of_graph(vector<int> adj[],int n){//SC-O(2*N) and TC-O(N+Total degree)T
         }
     }
 }
-
-
-// DEPTH FIRST SEARCH TRAVERSAL
-void dfs_of_graph_recursion(vector<int> adj[],int node,vector<bool>&visited){//SC-O(N)  and TC-O(N+2*E)
-    visited[node]=true;
-    cout<<node<<" ";
-    for(auto it:adj[node]){
-        if(!visited[node])
-        bfs_of_graph_recursion(adj,it,visited);
-    }
-}
+#include<pair>
 
 // DETECT A CYCLE IN UNDIRECTED GRAPH USING BFS
-bool isCylcle(int n,vector<int>adj[]){
+bool isCycle(int n,vector<int>adj[]){
     vector<bool>visited(n,false);
+    // node,parent
     queue<pair<int,int>>q;
-        for(int i=0;i<visited.size();i++){
+        for(int i=0;i<n;i++){
                 if(!visited[i]){
                     q.push({i,-1});
                     visited[i]=true;
@@ -212,6 +209,7 @@ bool dfs(vector<bool>&visited,vector<int>adj[],int node,int parent){//SC-O(n) TC
     }
     return false;
 }
+
 bool isCycleDetected(int n,vector<int>adj[]){
     vector<bool>visited(n,false);
     for(int i=0;i<n,i++){
@@ -309,7 +307,9 @@ int numIslands(vector<vector<char>>& grid) {//SC-O(N*N) and TC-O(N*N)
 // Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten.
 
 // Return the minimum number of minutes that must elapse until no cell has a fresh orange. If this is impossible, return -1.
-// Input: grid = [[2,1,1],[1,1,0],[0,1,1]]
+// Input: grid = [[2,1,1],
+            //    [1,1,0],
+            //    [0,1,1]]
 // Output: 4
 
 // Approach
@@ -457,7 +457,7 @@ void solve(vector<vector<char>>& board) {//TC-O(n*m) SC-O(n*m)
 // Input: grid = [[0,0,0,0],
 //                [0,0,1,0],
 //                [0,1,1,0],
-//                [0,0,0,0]]
+//                [0,0,0,1]]
 // Output: 3
 // Explanation: There are three 1s that are enclosed by 0s, and one 1 that is not enclosed because its on the boundary.
 int numEnclaves(vector<vector<int>>& grid) {
@@ -511,10 +511,24 @@ int numEnclaves(vector<vector<int>>& grid) {
         }
         return ans;
     }
-
-    // User function Template for C++
-
 // Number of distinct islands
+// Given a boolean 2D matrix grid of size n * m. You have to find the number of distinct islands where a group of connected 1s (horizontally or vertically) forms an island. Two islands are considered to be distinct if and only if one island is not equal to another (not rotated or reflected).
+
+// Example 1:
+
+// Input:
+// grid[][] = [[1, 1, 0, 0, 0],
+//             [1, 1, 0, 0, 0],
+//             [0, 0, 0, 1, 1],
+//             [0, 0, 0, 1, 1]]
+// Output: 1
+// Explanation:
+// grid[][] = [[1, 1, 0, 0, 0], 
+//             [1, 1, 0, 0, 0], 
+//             [0, 0, 0, 1, 1], 
+//             [0, 0, 0, 1, 1]]
+// Same colored islands are equal. We have 2 equal islands, so we have only 1 distinct island.
+
 void dfs(int row,int col,vector<vector<int>>&visited,vector<vector<int>>& grid,vector<pair<int,int>>&vec,int brow,int bcol){
     int n=grid.size();
     int m=grid[0].size();
@@ -552,41 +566,41 @@ int countDistinctIslands(vector<vector<int>>& grid) {//SC-O(n*m) TC-O(NxMx4 +NxM
 //Graph with 2 color such that adjacent colors are different is called as bipartite graph
 // EXAMPLE
 //          y-g-y-g-y
-    //    /          \
+    //    /          \'
 // y-g-y-g            g-y-g-y-g
 //        \          /
 //         y-g-y-g-y
 
-// Linear graph with no cycle or even cycle length is always bipartite graph
+// Linear graph with no cycle or Even cycle length is always bipartite graph
 // Graph with odd length cycle is non-bipartite graph
 
 // using bfs
 bool check_bfs(vector<vector<int>>& graph, vector<int>& color, int start) {
-int n = graph.size();
-queue<int> q;
-color[start] = false;
-q.push(start);
-while (!q.empty()) {
-    int curr = q.front();
-    q.pop();
-    for (int v : graph[curr]) {
-        if (color[v] == -1) {
-            q.push(v);
-            color[v] = !color[curr];
-        } else if (color[curr] == color[v])
-            return false;
-    }
-    if (q.empty()) {
-        for (int i = 0; i < n; i++) {
-            if (color[i] == -1) {
-                q.push(i);
-                color[i] = false;
-                break;
+    int n = graph.size();
+    queue<int>q;
+    color[start] = false;
+    q.push(start);
+    while (!q.empty()) {
+        int curr = q.front();
+        q.pop();
+        for (int v : graph[curr]) {
+            if (color[v] == -1) {
+                q.push(v);
+                color[v] = !color[curr];
+            } else if (color[curr] == color[v])
+                return false;
+        }
+        if (q.empty()) {
+            for (int i = 0; i < n; i++) {
+                if (color[i] == -1) {
+                    q.push(i);
+                    color[i] = false;
+                    break;
+                }
             }
         }
     }
-}
-return true;
+    return true;
 }
 
 bool isBipartite_bfs(vector<vector<int>>& graph) { // SC-O(N)  TC-O(N+2E)
@@ -654,11 +668,14 @@ bool check_cycle_in_undirected_graph(vector<vector<int>>adj){
     return false;
 }
 
+// Safe Node
 // There is a directed graph of n nodes with each node labeled from 0 to n - 1. The graph is represented by a 0-indexed 2D integer array graph where graph[i] is an integer array of nodes adjacent to node i, meaning there is an edge from node i to each node in graph[i].
 
 // A node is a terminal node if there are no outgoing edges. A node is a safe node if every possible path starting from that node leads to a terminal node (or another safe node).
 
 // Return an array containing all the safe nodes of the graph. The answer should be sorted in ascending order.
+
+// Approach-All nodes which is part of cycle or connected to cycle will be not safe node
 bool check(vector<vector<int>>& graph, vector<int>& visited,
                vector<int>& path_visited, vector<int>& safeNode, int node) {
         visited[node] = 1;
@@ -698,18 +715,19 @@ vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
 
 // SHORTEST PATH IN UNDIRECTED GRAPH
  vector<int> shortestPath(vector<vector<int>>& adj, int src) {
+    // node distance
        queue<pair<int,int>>q;
        vector<int>dist(adj.size(),INT_MAX);
        q.push({src,0});
        dist[src]=0;
        while(!q.empty()){
            int node=q.front().first;
-           int curr_time=q.front().second;
+           int curr_dist=q.front().second;
            q.pop();
            for(auto it:adj[node]){
-               if(dist[it]>curr_time+1){
-                   dist[it]=curr_time+1;
-                   q.push({it,curr_time+1});
+               if(dist[it]>curr_dist+1){
+                   dist[it]=curr_dist+1;
+                   q.push({it,curr_dist+1});
                }
            }
        }
@@ -784,7 +802,7 @@ vector<vector<string>> findLadders(string beginWord, string endWord, vector<stri
         unordered_set<string>s(wordList.begin(),wordList.end());
         queue<vector<string>>q;
         q.push({beginWord});
-        int level=0;
+        int level=0,minlevel=INT_MAX;
         vector<string>del;
         while(!q.empty()){
             vector<string>curr_v=q.front();
@@ -796,8 +814,10 @@ vector<vector<string>> findLadders(string beginWord, string endWord, vector<stri
                     s.erase(it);
                 }
                 del.clear();
+                if(level>minlevel)break
             }
             if(lastWord==endWord){
+                minlevel=level;
                 if(ans.size()==0){
                     ans.push_back(curr_v);
                 }else if(ans[0].size()==curr_v.size()){
@@ -902,6 +922,7 @@ public:
 // O(V+E) (two DFS traversals).
 // Space: O(V+E)
 // O(V+E) (graph storage).
+// NOTE- SCC is only valid for directed graph
 void dfs(int node,vector<int>&visited,vector<vector<int>> &adj,stack<int>&st){
         visited[node]=1;
         for(auto it:adj[node]){
@@ -911,44 +932,44 @@ void dfs(int node,vector<int>&visited,vector<vector<int>> &adj,stack<int>&st){
         }
         st.push(node);
     }
-    void dfs3(int node,vector<int>&visited,vector<vector<int>> &adj){
-        visited[node]=1;
-        for(auto it:adj[node]){
-            if(!visited[it]){
-                dfs3(it,visited,adj);
-            }
+void dfs3(int node,vector<int>&visited,vector<vector<int>> &adj){
+    visited[node]=1;
+    for(auto it:adj[node]){
+        if(!visited[it]){
+            dfs3(it,visited,adj);
         }
     }
-    int kosaraju(vector<vector<int>> &adj) {
-        int v=adj.size();
-        // perform dfs to find sort according to finish time
-        stack<int>st;
-        vector<int>visited(v,0);
-        for(int i=0;i<v;i++){
-            if(!visited[i]){
-                dfs(i,visited,adj,st);
-            }
+}
+int kosaraju(vector<vector<int>> &adj) {
+    int v=adj.size();
+    // perform dfs to find sort according to finish time
+    stack<int>st;
+    vector<int>visited(v,0);
+    for(int i=0;i<v;i++){
+        if(!visited[i]){
+            dfs(i,visited,adj,st);
         }
-        // reverse the edges
-        vector<vector<int>>adjR(v);
-        for(int i=0;i<v;i++){
-            visited[i]=0;
-            for(auto it:adj[i]){
-                adjR[it].push_back(i);
-            }
-        }
-        // perform the dfs to find scc
-        int scc=0;
-        while(!st.empty()){
-            int node=st.top();
-            st.pop();
-            if(!visited[node]){
-                scc++;
-                dfs3(node,visited,adjR);
-            }
-        }
-        return scc;
     }
+    // reverse the edges
+    vector<vector<int>>adjR(v);
+    for(int i=0;i<v;i++){
+        visited[i]=0;
+        for(auto it:adj[i]){
+            adjR[it].push_back(i);
+        }
+    }
+    // perform the dfs to find scc
+    int scc=0;
+    while(!st.empty()){
+        int node=st.top();
+        st.pop();
+        if(!visited[node]){
+            scc++;
+            dfs3(node,visited,adjR);
+        }
+    }
+    return scc;
+}
 
 // find bridges in the graph
 // Bridge Definition: An edge whose removal increases the number of connected components in a graph.
@@ -975,7 +996,7 @@ class Solution {
     int timer=1;
     void dfs(int node,int parent,vector<vector<int>>&bridge,vector<vector<int>>&adj,vector<int>&visited,vector<int>&minT,vector<int>&time){//,vector<int>&time
         visited[node]=1;
-         time[node]=timer;
+        time[node]=timer;
         minT[node]=timer++;
         for(int v:adj[node]){
             if(v==parent)continue;
@@ -1087,3 +1108,21 @@ int timer=1;
         if(ap.size()==0)return {-1};
         return ap;
     }
+
+    // All Problems
+    // 1.Detect cycle in undirected graph
+    // 2.Find number of different components from the adjacent matrix
+    // 3.Find number of Island
+    // 4.Rotten oranges
+    // 5.Distance of nearest cell having 1
+    // 6.Surrouding regions
+    // 7.Island size
+    // 8.Number of distant island
+    // 9.Bipartite Graph
+    // 9.Safe Node
+    // 10.Shortest PATH
+    // 11.Word ladder I
+    // 12.Word ladder II 
+    // 13.Find Strongly connected component (Kosaraju's algorithm)
+    // 14.Find Bridges in the graph
+    // 15.Articulation Points

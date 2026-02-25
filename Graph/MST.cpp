@@ -64,7 +64,6 @@ int prim_algorithm(vector<pair<int,int>>adj[],int n){//SC->O(Number of Edges)
         int parent=pq.top().second.second;
         pq.pop();
         // logE
-        if(visited[node])continue;
         visited[node]=true;
         sum+=weight;
         if(parent!=-1)

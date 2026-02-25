@@ -15,7 +15,6 @@ using namespace std;
 class DisjointSet{
     public:
     vector<int>rank,parent,size;
-public:
     DisjointSet(int n){
         rank.resize(n+1,0);
         parent.resize(n+1);

@@ -234,75 +234,225 @@ int main()
 // fenwick tree
 // PS-we have an array containing only 0s and 1s 0-tail and 1-head
 // in each query if query of type 1 then flip every index from head to tail and vice-versa
-//in query of type-2 return number of head between l and r
-class SGTreeHead{
-    vector<int>segt,lazy;
-    public:
-    SGTreeHead(int n){
-        segt.resize(4*n+1,0);
-        lazy.resize(4*n+1,0);
+// in query of type-2 return number of head between l and r
+class SGTreeHead
+{
+    vector<int> segt, lazy;
+
+public:
+    SGTreeHead(int n)
+    {
+        segt.resize(4 * n + 1, 0);
+        lazy.resize(4 * n + 1, 0);
     }
-    void build(int in,int low,int high,vector<int>&a){
+    void build(int in, int low, int high, vector<int> &a)
+    {
+        if (low == high)
+        {
+            segt[in] = a[low];
+            return;
+        }
+        int mid = (low + high) / 2;
+        build(2 * in + 1, low, mid, a);
+        build(2 * in + 2, mid + 1, high, a);
+        segt[in] = segt[2 * in + 1] + segt[2 * in + 2];
+    }
+    void update(int in, int low, int high, int l, int r)
+    {
+        // update the previous remaining updates and propagate downwards
+        if (lazy[in] != 0)
+        {
+            segt[in] = (high - low + 1) - segt[in];
+            if (low != high)
+            { // must be  more than one children
+                lazy[2 * in + 1] = !lazy[in];
+                lazy[2 * in + 2] = !lazy[in];
+            }
+            lazy[in] = 0;
+        }
+
+        // no overlap
+        if (l > high | r < low)
+        {
+            return;
+        }
+        if (l <= low && high <= r)
+        { // complete overlap
+            segt[in] = (high - low + 1) - segt[in];
+            if (low != high)
+            {
+                lazy[2 * in + 1] = !lazy[2 * in + 1];
+                lazy[2 * in + 2] = !lazy[2 * in + 2];
+            }
+            return;
+        }
+        // partial overlap
+        int mid = (low + high) / 2;
+        update(2 * in + 1, low, mid, l, r);
+        update(2 * in + 2, mid + 1, high, l, r);
+        segt[in] = segt[2 * in + 1] + segt[2 * in + 2];
+    }
+    int query(int in, int low, int high, int l, int r)
+    {
+        if (lazy[in != 0])
+        {
+            segt[in] = (high - low + 1) - segt[in];
+            // propagate to its children
+            if (low != high)
+            {
+                lazy[2 * in + 1] = !lazy[2 * in + 1];
+                lazy[2 * in + 2] = !lazy[2 * in + 2];
+            }
+            lazy[in] = 0;
+        }
+        // no overlap
+        if (l > high | r < low)
+        {
+            return 0;
+        }
+        // complete overlap
+        if (l <= low && high <= r)
+        {
+            return segt[in];
+        }
+        // partial overlap
+        int mid = (low + high) / 2;
+        int left = query(2 * in + 1, low, mid, l, r);
+        int right = query(2 * in + 2, mid + 1, high, l, r);
+        return left + right;
+    }
+};
+
+// Once upon a time Mike and Mike decided to come up with an outstanding problem for some stage of ROI (rare olympiad in informatics). One of them came up with a problem prototype but another stole the idea and proposed that problem for another stage of the same olympiad. Since then the first Mike has been waiting for an opportunity to propose the original idea for some other contest... Mike waited until this moment!
+
+// You are given an array a
+//  of n
+//  integers. You are also given q
+//  queries of two types:
+
+// Replace i
+// -th element in the array with integer x
+// .
+// Replace each element in the array with integer x
+// .
+// After performing each query you have to calculate the sum of all elements in the array.
+
+// Input
+// The first line contains two integers n
+//  and q
+//  (1≤n,q≤2⋅105
+// ) — the number of elements in the array and the number of queries, respectively.
+
+// The second line contains n
+//  integers a1,…,an
+//  (1≤ai≤109
+// ) — elements of the array a
+// .
+
+// Each of the following q
+//  lines contains a description of the corresponding query. Description begins with integer t
+//  (t∈{1,2}
+// ) which denotes a type of the query:
+
+// If t=1
+// , then two integers i
+//  and x
+//  are following (1≤i≤n
+// , 1≤x≤109
+// ) — position of replaced element and it's new value.
+// If t=2
+// , then integer x
+//  is following (1≤x≤109
+// ) — new value of each element in the array.
+// Output
+// Print q
+//  integers, each on a separate line. In the i
+// -th line print the sum of all elements in the array after performing the first i
+//  queries.
+
+// Example
+// Input
+// 5 5
+// 1 2 3 4 5
+// 1 1 5
+// 2 10
+// 1 5 11
+// 1 4 1
+// 2 1
+// Output
+// 19
+// 50
+// 51
+// 42
+// 5
+typedef long long ll;
+class SGTree{
+    vector<ll>segt,lazy;
+    public:
+    SGTree(ll n){
+        segt.resize(4*n+1,0);
+        lazy.resize(4*n+1,-1);
+    }
+    void push(ll in,ll low,ll high){
+        if(lazy[in]!=-1){
+            segt[in]=(high-low+1)*lazy[in];
+            if(low!=high){
+                lazy[2*in+1]=lazy[in];
+                lazy[2*in+2]=lazy[in];
+            }
+            lazy[in]=-1;
+        }
+    }
+    void build(ll in,ll low,ll high,vector<ll>&a){
         if(low==high){
             segt[in]=a[low];
             return;
         }
-        int mid=(low+high)/2;
+        ll mid=low+(high-low)/2;
         build(2*in+1,low,mid,a);
         build(2*in+2,mid+1,high,a);
         segt[in]=segt[2*in+1]+segt[2*in+2];
     }
-    void update(int in,int low,int high,int l,int r){
-        // update the previous remaining updates and propagate downwards
-        if(lazy[in]!=0){
-            segt[in]=(high-low+1)-segt[in];
-            if(low!=high){//must be  more than one children
-                lazy[2*in+1]=!lazy[in];
-                lazy[2*in+2]=!lazy[in];
-            }
-            lazy[in]=0;
-        }
-
-        // no overlap
-        if(l>high | r<low){
-            return;
-        }
-        if(l<=low && high<=r){//complete overlap
-            segt[in]=(high-low+1)-segt[in];
-            if(low!=high){
-                lazy[2*in+1]=!lazy[2*in+1];
-                lazy[2*in+2]=!lazy[2*in+2];
-            }
-            return;
-        }
-        //partial overlap
-        int mid=(low+high)/2;
-        update(2*in+1,low,mid,l,r);
-        update(2*in+2,mid+1,high,l,r);
-        segt[in]=segt[2*in+1]+segt[2*in+2];
-    }
-    int query(int in,int low,int high,int l,int r){
-        if(lazy[in!=0]){
-            segt[in]=(high-low+1)-segt[in];
-            // propagate to its children
-            if(low!=high){
-                lazy[2*in+1]=!lazy[2*in+1];
-                lazy[2*in+2]=!lazy[2*in+2];
-            }
-            lazy[in]=0;
-        }
-        // no overlap
-        if(l>high | r<low){
-            return 0;
-        }
-        //complete overlap
-        if(l<=low && high<=r){
+    ll update(ll in,ll low,ll high,ll x,ll val){
+        push(in,low,high);
+        if(x < low || x > high) 
             return segt[in];
+        if(low==high){
+            return segt[in]=val;
         }
-        //partial overlap
-        int mid=(low+high)/2;
-        int left=query(2*in+1,low,mid,l,r);
-        int right=query(2*in+2,mid+1,high,l,r);
-        return left+right;
+        ll mid=low+(high-low)/2;
+        ll left=update(2*in+1,low,mid,x,val);
+        ll right=update(2*in+2,mid+1,high,x,val);
+        return segt[in]=left+right;
+    }
+    ll update2(ll val,ll n){
+        lazy[0]=val;
+        push(0,0,n-1);
+        return segt[0];
     }
 };
+
+int main() {
+    ll n,q;
+    cin>>n>>q;
+    vector<ll>a(n);
+    for(auto &x:a)cin>>x;
+    SGTree sgt(n);
+    sgt.build(0,0,n-1,a);
+    while(q--){
+        ll t;
+        cin>>t;
+        if(t==1){
+            ll x,val;
+            cin>>x>>val;
+            cout<<sgt.update(0,0,n-1,x-1,val)<<endl;
+        }
+        else{
+            ll val;
+            cin>>val;
+            cout<<sgt.update2(val,n)<<endl;
+        }
+        
+    }
+    return 0;
+}
