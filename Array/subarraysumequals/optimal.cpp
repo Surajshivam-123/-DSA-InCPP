@@ -18,9 +18,6 @@ int subarraySum(vector<int>& nums, int k) {//TC=o(n)//SC=O(n)
             if(m.find(val)!=m.end()){
                 c+=m[val];
             }
-            if(m.find(pf[j])==m.end()){
-                m[pf[j]]=0;
-            }
             m[pf[j]]++;
         }
        return c;

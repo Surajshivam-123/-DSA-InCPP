@@ -40,7 +40,6 @@ int maxProfit(vector<int>& prices) {
         minp=min(prices[i],minp);
         profit=prices[i]-minp;
         maxprofit=max(profit,maxprofit);
-
     }
     return maxprofit;
 }

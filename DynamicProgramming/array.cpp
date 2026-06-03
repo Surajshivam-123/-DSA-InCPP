@@ -593,3 +593,98 @@ public:
         return f(0, shelfWidth, 0, books, memo);
     }
 };
+
+// Find all Possible stacle array
+// You are given 3 positive integers zero, one, and limit.
+
+// A binary array arr is called stable if:
+
+// The number of occurrences of 0 in arr is exactly zero.
+// The number of occurrences of 1 in arr is exactly one.
+// Each subarray of arr with a size greater than limit must contain both 0 and 1.
+// Return the total number of stable binary arrays.
+
+// Since the answer may be very large, return it modulo 109 + 7.
+
+ 
+
+// Example 1:
+
+// Input: zero = 1, one = 1, limit = 2
+
+// Output: 2
+
+// Explanation:
+
+// The two possible stable binary arrays are [1,0] and [0,1].
+
+class Solution {
+    long long const mod=1e9+7;
+    vector<vector<vector<int>>>dp;
+    long long f(int zeroleft,int oneleft,int last,int limit){
+        if(oneleft==0){
+            if(zeroleft<=limit)return 1;
+            return 0;
+        }
+        if(zeroleft==0){
+            if(oneleft<=limit)return 1;
+            return 0;
+        }
+        if(last!=-1 && dp[zeroleft][oneleft][last]!=-1)return dp[zeroleft][oneleft][last];
+        long long res=0;
+        if(last!=1){//last=0
+            for(int len=1;len<=min(oneleft,limit);len++){
+                res=(res+f(zeroleft,oneleft-len,1,limit))%mod;
+            }
+        }
+        if(last!=0){//last=1
+            for(int len=1;len<=min(zeroleft,limit);len++){
+                res=(res+f(zeroleft-len,oneleft,0,limit))%mod;
+            }
+        }
+        if(last==-1)return res;
+        return dp[zeroleft][oneleft][last]=res;
+    }
+public:
+    int numberOfStableArrays(int zero, int one, int limit) {
+        dp.assign(zero + 1, vector<vector<int>>(one + 1, vector<int>(2, -1)));
+        return (int)f(zero,one,-1,limit);
+    }
+};
+
+// optimized
+class Solution {
+    long long const mod = 1e9 + 7;
+    vector<vector<vector<int>>> dp;
+    long long f(int zeroleft, int oneleft, int last, int limit) {
+        if (zeroleft < 0 || oneleft < 0)
+            return 0;
+        if (oneleft == 0) {
+            return last == 0 && zeroleft <= limit;
+        }
+        if (zeroleft == 0) {
+            return last == 1 && oneleft <= limit;
+        }
+        if (dp[zeroleft][oneleft][last] != -1)
+            return dp[zeroleft][oneleft][last];
+        long long res = 0;
+        if (last == 0) {
+            res = (res + f(zeroleft - 1, oneleft, 0, limit)) % mod;
+            res = (res + f(zeroleft - 1, oneleft, 1, limit)) % mod;
+            res =
+                (res - f(zeroleft - limit - 1, oneleft, 1, limit) + mod) % mod;
+        } else {
+            res = (res + f(zeroleft, oneleft - 1, 1, limit)) % mod;
+            res = (res + f(zeroleft, oneleft - 1, 0, limit)) % mod;
+            res =
+                (res - f(zeroleft, oneleft - limit - 1, 0, limit) + mod) % mod;
+        }
+        return dp[zeroleft][oneleft][last] = res;
+    }
+
+public:
+    int numberOfStableArrays(int zero, int one, int limit) {
+        dp.assign(zero + 1, vector<vector<int>>(one + 1, vector<int>(2, -1)));
+        return (int)(f(zero, one, 0, limit) + f(zero, one, 1, limit)) % mod;
+    }
+};

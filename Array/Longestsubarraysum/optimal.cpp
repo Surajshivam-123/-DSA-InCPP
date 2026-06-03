@@ -1,7 +1,6 @@
 #include<iostream>
 using namespace std;
 //2 pointer approach'
-if array 
 int longestSubarraySum(vector<int>a,int k){
     int maxlen=0;
     int n=a.size();

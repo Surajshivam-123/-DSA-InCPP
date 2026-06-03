@@ -302,3 +302,56 @@ public:
         return dfs(root, 0);
     }
 };
+
+// You are given a binary string s. You are allowed to perform two types of operations on the string in any sequence:
+
+// Type-1: Remove the character at the start of the string s and append it to the end of the string.
+// Type-2: Pick any character in s and flip its value, i.e., if its value is '0' it becomes '1' and vice-versa.
+// Return the minimum number of type-2 operations you need to perform such that s becomes alternating.
+
+// The string is called alternating if no two adjacent characters are equal.
+
+// For example, the strings "010" and "1010" are alternating, while the string "0100" is not.
+ 
+
+// Example 1:
+
+// Input: s = "111000"
+// Output: 2
+// Explanation: Use the first operation two times to make s = "100011".
+// Then, use the second operation on the third and sixth elements to make s = "101010".
+
+class Solution {
+public:
+    int minFlips(string s) {
+        int n=s.length();
+        int op[2]={0,0};
+        // op[0]--101010
+        // op[1]--010101
+        for(int i=0;i<n;i++){
+            op[(s[i]^i)&1]++;
+        }
+        int ans=min(op[0],op[1]);
+        for(int i=0;i<n-1;i++){
+            op[(s[i]^i)&1]--;
+            op[(s[i]^(i+n))&1]++;
+            ans=min(ans,min(op[0],op[1]));
+        }
+        return ans;
+    }
+};
+
+// Given an integer n, you must transform it into 0 using the following operations any number of times:
+
+// Change the rightmost (0th) bit in the binary representation of n.
+// Change the ith bit in the binary representation of n if the (i-1)th bit is set to 1 and the (i-2)th through 0th bits are set to 0.
+// Return the minimum number of operations to transform n into 0.
+
+int minimumOneBitOperations(int n) {
+        int ans = 0;
+        while (n) {
+            ans ^= n;
+            n >>= 1;
+        }
+        return ans;
+    }

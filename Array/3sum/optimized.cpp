@@ -13,8 +13,8 @@ vector<vector<int>> threeSum(vector<int>& nums) {//TC=>O(nlogn +n^2)
                     ans.push_back({nums[i],nums[j],nums[k]});
                     j++;k--;
                     while(j<k && nums[j]==nums[j-1]){
-                    j++;
-                }
+                        j++;
+                    }
                 }
                 else if(nums[i]+nums[j]+nums[k]>0){
                     k--;
@@ -25,7 +25,7 @@ vector<vector<int>> threeSum(vector<int>& nums) {//TC=>O(nlogn +n^2)
             }
         }
         return ans;
-                }
+    }
 int main(){
 
 }
