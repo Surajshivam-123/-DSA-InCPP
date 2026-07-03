@@ -1,43 +1,70 @@
-class Solution {
-public:
-    vector<vector<int>> adj;
-    int maxLen(int n, vector<vector<int>>& edges, string label) {
-        adj.resize(n);
-        for(auto& e : edges) {
-            adj[e[0]].push_back(e[1]);
-            adj[e[1]].push_back(e[0]);
-        }
-        int ans = 1;
-        for(int i=0; i<n; i++) {
-            // odd length palindrome
-            for(int j : adj[i]) {
-                for(int k : adj[i]) {
-                    vector<bool> visited(n, false);
-                    visited[i] = true;
-                    if(j != k and label[j] == label[k])
-                        ans = max(ans, 1 + fun(j, k, label, visited));
-                }
-            }
-            // even length palindrome
-            for(int j : adj[i]) {
-                vector<bool> visited(n, false);
-                visited.assign(n, false);
-                if(label[i] == label[j])
-                    ans = max(ans, fun(i, j, label, visited));
-            }
-        }
-        return ans;
+#include <bits/stdc++.h>
+using namespace std;
+
+bool issubs(const vector<int>& a, const vector<int>& b) {
+    int j = 0;
+    for (int x : a) {
+        if (j < (int)b.size() && x == b[j]) j++;
     }
-    int fun(int i, int j, const string& label, vector<bool>& visited) {
-        visited[i] = visited[j] = true;
-        int ret = 2;
-        for(int e : adj[i]) {
-            for(int f : adj[j]) {
-                if(e != f and label[e] == label[f] and !visited[e] and !visited[f]) {
-                    ret = max(ret, 2 + fun(e, f, label, visited));
-                }
+    return j == (int)b.size();
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int T;
+    cin >> T;
+    while (T--) {
+        int N;
+        string A, B;
+        cin >> N >> A >> B;
+
+        vector<int> SA, SB;
+
+        for (int i = 0; i + 1 < N; i++) {
+            if (A[i] != A[i + 1]) {
+                SA.push_back((A[i] == '0' && A[i + 1] == '1') ? 1 : -1);
+            }
+            if (B[i] != B[i + 1]) {
+                SB.push_back((B[i] == '0' && B[i + 1] == '1') ? 1 : -1);
             }
         }
-        return ret;
+        if (SB.empty()) {
+            if (SA.empty()) {
+                cout << (A == B ? "Yes\n" : "No\n");
+            } else {
+                cout << "Yes\n"; 
+            }
+            continue;
+        }
+        if (!issubs(SA, SB)) {
+            cout << "No\n";
+            continue;
+        }
+
+        bool fd = (B[0] != A[0]);
+        bool ld  = (B[N - 1] != A[N - 1]);
+
+        bool ans = true;
+
+        if (fd && ld) {
+            vector<int> temp = SA;
+            if (!temp.empty()) temp.erase(temp.begin());
+            if (!temp.empty()) temp.pop_back();
+            ans = issubs(temp, SB);
+        } else if (fd) {
+            vector<int> temp = SA;
+            if (!temp.empty()) temp.erase(temp.begin());
+            ans = issubs(temp, SB);
+        } else if (ld) {
+            vector<int> temp = SA;
+            if (!temp.empty()) temp.pop_back();
+            ans = issubs(temp, SB);
+        }
+
+        cout << (ans ? "Yes\n" : "No\n");
     }
-};
+
+    return 0;
+}

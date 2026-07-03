@@ -17,6 +17,7 @@ void dfs(vector<int> adj[],int node,vector<bool>&visited,stack<int>&st){
     }
     st.push(node);
 }
+
 vector<int> topoSort(int v, vector<int> adj[]){//SC-O(N) TC-O(V+E)
     vector<bool>visited(v,0);
     stack<int>st;

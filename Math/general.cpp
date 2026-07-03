@@ -43,6 +43,7 @@ bool isPrime(int n)
 
 vector<int> allPrimeFactor(int n)
 { // O(sqrt(n)*2*sqrt(n))
+    if(n==2 || n==3)return {n};
     vector<int> ans;
     for (int i = 2; i * i <= n; i++)
     {
