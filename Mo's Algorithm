@@ -1,0 +1,127 @@
+//https://leetcode.com/problems/valid-k-unique-subarrays-i/description/
+class Solution {
+public:
+    vector<bool> validSubarrays(vector<int>& nums, int k, vector<vector<int>>& queries) {
+
+        // 1. sort queries by Mo's Algorithm
+        int n = nums.size();
+        int block = (int)sqrt(n);
+        int ql = queries.size();
+
+        vector<vector<int>> iqueries(ql, vector<int>(3));
+
+        for (int i = 0; i < ql; i++) {
+            iqueries[i][0] = queries[i][0];
+            iqueries[i][1] = queries[i][1];
+            iqueries[i][2] = i;
+        }
+
+        sort(iqueries.begin(), iqueries.end(),
+            [&](const vector<int>& a, const vector<int>& b) {
+
+                if (a[0] / block != b[0] / block) {
+                    return a[0] / block < b[0] / block;
+                }
+                return (a[0]/block & 1)?a[1] < b[1]:a[1] > b[1];
+            }
+        );
+
+        vector<bool> ans(ql, false);
+
+        // 2. for first query update distinct, fre, odd
+        int L = 0;
+        int R = -1;
+
+        int distinct = 0;
+        int odd = 0;
+
+        int maxElement = findMax(nums);
+        vector<int> frequencies(maxElement + 1, 0);
+
+        for (auto& iQ : iqueries) {
+
+            int l = iQ[0];
+            int r = iQ[1];
+            int index = iQ[2];
+
+            // expanding means adding (towards Left)
+            while (L > l) {
+                L--;
+
+                frequencies[nums[L]]++;
+
+                if (frequencies[nums[L]] == 1)
+                    distinct++;
+
+                if (frequencies[nums[L]] % 2 == 1)
+                    odd++;
+                else
+                    odd--;
+            }
+
+            // I have to add Elements (towards right)
+            while (R < r) {
+                R++;
+
+                frequencies[nums[R]]++;
+
+                if (frequencies[nums[R]] == 1)
+                    distinct++;
+
+                if (frequencies[nums[R]] % 2 == 1)
+                    odd++;
+                else
+                    odd--;
+            }
+
+            // I have to remove Elements (towards right)
+            while (L < l) {
+
+                frequencies[nums[L]]--;
+
+                if (frequencies[nums[L]] == 0)
+                    distinct--;
+
+                if (frequencies[nums[L]] % 2 == 0)
+                    odd--;
+                else
+                    odd++;
+
+                L++;
+            }
+
+            // shrinking means removing (towards left)
+            while (r < R) {
+
+                frequencies[nums[R]]--;
+
+                if (frequencies[nums[R]] % 2 == 1)
+                    odd++;
+                else
+                    odd--;
+
+                if (frequencies[nums[R]] == 0)
+                    distinct--;
+
+                R--;
+            }
+
+            if (distinct == k && odd == 0) {
+                ans[index] = true;
+            }
+        }
+
+        return ans;
+    }
+
+    int findMax(vector<int>& nums) {
+
+        int maxElement = 0;
+
+        for (int num : nums) {
+            maxElement = max(maxElement, num);
+        }
+
+        return maxElement;
+    }
+};
